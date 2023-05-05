@@ -1,13 +1,11 @@
-const goods = [
-  'Breakfast',
-  'Air conditioning',
-  'Laptop',
-  'Friendly workspace',
-  'Baby seat',
-  'Washer',
-  'Towels',
-  'Fridge'
-] as const;
-
-export type Good = typeof goods[number];
+export enum Goods {
+  Breakfasy = 'Breakfast',
+  AirConditioning = 'Air conditioning',
+  Laptop = 'Laptop',
+  FriendlyWorkspace = 'Friendly workspace',
+  BabySeat = 'Baby seat',
+  Washer = 'Washer',
+  Towels = 'Towels',
+  Fridge = 'Fridge'
+}
 

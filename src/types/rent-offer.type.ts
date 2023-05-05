@@ -1,8 +1,8 @@
-import { City } from './city.type.js';
-import { Good } from './goods.type.js';
-import { Location } from './location.type.js';
-import { OfferType } from './offer-type.type.js';
-import { User } from './user.type.js';
+import type { City } from './city.type.js';
+import type { Goods } from './goods.type.js';
+import type { Location } from './location.type.js';
+import type { OfferType } from './offer-type.type.js';
+import type { User } from './user.type.js';
 
 export type RentOffer = {
   title: string,
@@ -18,7 +18,7 @@ export type RentOffer = {
   bedrooms: number,
   maxAdults: number,
   price: number,
-  goods: Good[],
+  goods: Goods[],
   advertiser: User
   location: Location,
 }

@@ -1,19 +1,27 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, accessSync, constants } from 'node:fs';
+
 import { FileReaderInterface } from './file-reader.interface.js';
-import { RentOffer } from '../../types/rent-offer.type.js';
-import { User } from '../../types/user.type.js';
-import { Location } from '../../types/location.type.js';
-import { Good } from '../../types/goods.type.js';
-import { City } from '../../types/city.type.js';
-import { OfferType } from '../../types/offer-type.type.js';
+
+import type { RentOffer } from '../../types/rent-offer.type.js';
+import type { User } from '../../types/user.type.js';
+import type { Location } from '../../types/location.type.js';
+import type { Goods } from '../../types/goods.type.js';
+import type { City } from '../../types/city.type.js';
+import type { OfferType } from '../../types/offer-type.type.js';
+import { UserStatus } from '../../types/user-status.type.js';
 
 export default class TSVFileReader implements FileReaderInterface {
-  private rawData = '';
+  private rawData: string | undefined;
 
   constructor(public filename: string) { }
 
   public read(): void {
-    this.rawData = readFileSync(this.filename, { encoding: 'utf8' });
+    try {
+      accessSync(this.filename, constants.R_OK);
+      this.rawData = readFileSync(this.filename, { encoding: 'utf8' });
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   public toArray(): RentOffer[] {
@@ -42,7 +50,7 @@ export default class TSVFileReader implements FileReaderInterface {
           goods,
           name,
           email,
-          proStatus,
+          userStatus,
           avatarImage,
           description,
           latitude,
@@ -50,7 +58,7 @@ export default class TSVFileReader implements FileReaderInterface {
         ] = offer;
 
         const offerImages: string[] = images.split(';');
-        const offerGoods = goods.split(';') as Good[];
+        const offerGoods = goods.split(';') as Goods[];
         const location: Location = {
           latitude: Number.parseFloat(latitude),
           longitude: Number.parseFloat(longitude),
@@ -59,7 +67,7 @@ export default class TSVFileReader implements FileReaderInterface {
           username: name,
           email,
           avatarPath: avatarImage,
-          isPro: proStatus === 'true'
+          status: userStatus as UserStatus
         };
 
         return {

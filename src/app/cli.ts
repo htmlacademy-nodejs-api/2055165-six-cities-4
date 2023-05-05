@@ -1,12 +1,10 @@
 import { CliCommandInterface } from '../core/cli-command/cli-command.interface';
 
-type ParsedCommand = {
-  [commandName: string]: string[]
-};
+type ParsedCommand = Record<string, string[]>
 
 export default class CLIApplication {
-  private commands: {[propertyName: string]: CliCommandInterface} = {};
-  private defaultCommand = '--help';
+  private commands: Record<string, CliCommandInterface> = {};
+  private readonly defaultCommand = '--help';
 
   private parseCommand(cliArguments: string[]): ParsedCommand {
     const parsedCommand: ParsedCommand = {};
@@ -25,11 +23,7 @@ export default class CLIApplication {
   }
 
   public registerCommands(commandList: CliCommandInterface[]): void {
-    commandList.reduce((acc, command) => {
-      const cliCommand = command;
-      acc[cliCommand.name] = cliCommand;
-      return acc;
-    }, this.commands);
+    this.commands = commandList.reduce((acc, cliCommand) => ({ ...acc, [cliCommand.name]: cliCommand }), {});
   }
 
   public getCommand(commandName: string): CliCommandInterface {
