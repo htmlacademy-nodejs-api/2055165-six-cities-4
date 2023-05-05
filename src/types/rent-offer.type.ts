@@ -4,7 +4,7 @@ import { Location } from './location.type.js';
 import { OfferType } from './offer-type.type.js';
 import { User } from './user.type.js';
 
-export type RentalOffer = {
+export type RentOffer = {
   title: string,
   description: string,
   offerDate: string,

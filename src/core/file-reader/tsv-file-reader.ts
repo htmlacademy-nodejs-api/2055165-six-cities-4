@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { FileReaderInterface } from './file-reader.interface.js';
-import { RentalOffer } from '../../types/rent-offer.type.js';
+import { RentOffer } from '../../types/rent-offer.type.js';
 import { User } from '../../types/user.type.js';
 import { Location } from '../../types/location.type.js';
 import { Good } from '../../types/goods.type.js';
@@ -16,7 +16,7 @@ export default class TSVFileReader implements FileReaderInterface {
     this.rawData = readFileSync(this.filename, { encoding: 'utf8' });
   }
 
-  public toArray(): RentalOffer[] {
+  public toArray(): RentOffer[] {
     if (!this.rawData) {
       return [];
     }
