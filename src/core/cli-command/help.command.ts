@@ -10,10 +10,10 @@ export default class HelpCommand implements CliCommandInterface {
         Пример:
             main.js --<command> [--arguments]
         Команды:
-            --version:                   # выводит номер версии приложения six cities
-            --help:                      # печатает этот текст в терминал
-            --import <path>:             # импортирует данные приложения из TSV-файла
-            --generate <n> <path> <url>  # генерирует произвольное количество тестовых данных
+            --version:                       # выводит номер версии приложения six cities
+            --help:                          # печатает этот текст в терминал
+            --import <filepath>:             # импортирует данные приложения из TSV-файла
+            --generate <n> <filepath> <url>  # генерирует произвольное количество тестовых объявлений об аренде
       `
     );
   }
