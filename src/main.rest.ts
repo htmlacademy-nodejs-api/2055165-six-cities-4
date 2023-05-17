@@ -16,9 +16,9 @@ async function bootstrap() {
   container.bind<ConfigInterface<RestSchema>>(RestAppComponent.ConfigInterface).to(ConfigService).inSingletonScope();
 
   const restApp = container.get<RestApplication>(RestAppComponent.RestApplication);
-  await restApp.init().catch((err) => {
-    console.log('Can\'t init Rest Application, cause: ', err);
-  });
+  await restApp.init();
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.log('Bootstrap Rest Application error: ', error);
+});
