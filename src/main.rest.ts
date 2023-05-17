@@ -9,7 +9,6 @@ import { ConfigInterface } from './core/config/config.interface.js';
 import { RestSchema } from './core/config/rest.schema.js';
 import { RestAppComponent } from './types/rest-app-component.type.js';
 
-
 async function bootstrap() {
   const container = new Container();
   container.bind<RestApplication>(RestAppComponent.RestApplication).to(RestApplication).inSingletonScope();
@@ -17,7 +16,9 @@ async function bootstrap() {
   container.bind<ConfigInterface<RestSchema>>(RestAppComponent.ConfigInterface).to(ConfigService).inSingletonScope();
 
   const restApp = container.get<RestApplication>(RestAppComponent.RestApplication);
-  await restApp.init();
+  await restApp.init().catch((err) => {
+    console.log('Can\'t init Rest Application, cause: ', err);
+  });
 }
 
 bootstrap();
