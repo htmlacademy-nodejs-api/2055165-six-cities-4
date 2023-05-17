@@ -10,4 +10,5 @@ const cliApp = new CLIApplication();
 cliApp.registerCommands([
   new HelpCommand(), new VersionCommand(), new ImportCommand(), new GenerateCommand()
 ]);
+
 cliApp.executeCommand(process.argv);
