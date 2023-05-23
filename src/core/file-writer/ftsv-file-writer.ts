@@ -20,7 +20,6 @@ export default class TSVFileWriter implements FileWriterInterface {
   }
 
   public async write(row: string): Promise<void> {
-
     const canWrite = this.stream.write(`${row}\n`);
 
     if (!canWrite) {

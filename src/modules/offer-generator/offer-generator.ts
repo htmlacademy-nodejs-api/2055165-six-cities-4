@@ -7,7 +7,6 @@ import { UserStatus } from '../../types/user-status.type.js';
 
 import type { MockData } from '../../types/mock-data.type.js';
 
-
 const MIN_PRICE = 100;
 const MAX_PRICE = 100000;
 

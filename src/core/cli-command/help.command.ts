@@ -8,7 +8,7 @@ export default class HelpCommand implements CliCommandInterface {
       `
         Программа для подготовки данных для REST API сервера.
         Пример:
-            main.rest.js --<command> [--arguments]
+            main.cli.js --<command> [--arguments]
         Команды:
             --version:                       # выводит номер версии приложения six cities
             --help:                          # печатает этот текст в терминал
