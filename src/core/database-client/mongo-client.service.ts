@@ -8,7 +8,7 @@ import { DatabaseClientInterface } from './database-client.interface.js';
 import { AppComponent } from '../../types/app-component.type.js';
 import { LoggerInterface } from '../logger/logger.interface.js';
 
-const RETRY_COUNT = 2;
+const RETRY_COUNT = 5;
 const RETRY_TIMEOUT = 1000;
 const DB_CONNECTION_TIMEOUT = 5000;
 

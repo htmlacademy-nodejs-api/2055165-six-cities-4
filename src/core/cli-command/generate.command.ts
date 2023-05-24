@@ -2,7 +2,7 @@ import got from 'got';
 
 import { CliCommandInterface } from './cli-command.interface.js';
 import OfferGenerator from '../../modules/offer-generator/offer-generator.js';
-import TSVFileWriter from '../file-writer/ftsv-file-writer.js';
+import TSVFileWriter from '../file-writer/tsv-file-writer.js';
 import type { MockData } from '../../types/mock-data.type.js';
 
 export default class GenerateCommand implements CliCommandInterface {

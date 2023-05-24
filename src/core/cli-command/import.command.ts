@@ -51,7 +51,13 @@ export default class ImportCommand implements CliCommandInterface {
     this.databaseService.disconnect();
   }
 
-  public async execute(filename: string, DBUriPath: string, salt: string): Promise<void> {
+  public async execute(...params: string[]): Promise<void> {
+    if (params.length !== 3) {
+      throw new Error('Invalid command params length');
+    }
+
+    const [filename, DBUriPath, salt] = params;
+
     this.salt = salt;
 
     if (!filename) {
@@ -68,6 +74,5 @@ export default class ImportCommand implements CliCommandInterface {
     await fileReader.read().catch((error) => {
       console.log(`Can't read the file: ${getErrorMessage(error)}`);
     });
-
   }
 }
