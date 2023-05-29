@@ -21,14 +21,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserData"
+              $ref: "#/components/schemas/User"
         required: true
 
       responses:
         "201":
           description:
             Пользователь зарегистрирован. Возвращает объект пользователя с присвоенным по-умолчанию статусом "обычный".
-            Также по-умолчанию присваивается аватар.
+            Также, если пользователь не прислал аватар, он присваивается по-умолчанию.
           content:
             application/json:
               schema:
@@ -36,6 +36,11 @@ paths:
 
         "409":
           description: Пользователь с таким email уже существует.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/regUserErrorMessage'
+
 
   /users/{userId}/avatar:
     put:
@@ -46,6 +51,13 @@ paths:
         - tokenAuth: []
       description: Загружает изображение аватара пользователя. Изображение
         аватара должно быть в формате 'png' или 'jpg'.
+      parameters:
+        - name: userId
+          in: path
+          description: id пользователя
+          required: true
+          schema:
+            type: number
       requestBody:
         content:
           image/jpeg:
@@ -65,12 +77,65 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
 
+        '400':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/checkAuthErrorMessage'
+
         "401":
           description: Некорректный формат изображения.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/failedUploadAvatarMessage'
+
+
+  /users/{userId}/favorites:
+     get:
+      tags:
+      - rent-offers
+      summary: Получение списка избранных предложений пользователя.
+      security:
+        - tokenAuth: []
+      description:
+        Получение списка избранных предложений.
+        Доступно только авторизованным пользователям.
+      parameters:
+        - name: userId
+          in: path
+          description: id пользователя
+          required: true
+          schema:
+            type: number
+        - name: X-Token
+          in: header
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+
+      responses:
+        '200':
+          description: Массив избранных предложений пользователя.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/RentOfferBasicInfo'
+
+        '400':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/checkAuthErrorMessage'
+
 
   /users/auth:
     post:
@@ -94,7 +159,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthUser'
+                $ref: '#/components/schemas/User'
 
         "401":
           description: Пользователь с таким email не существует.
@@ -107,6 +172,8 @@ paths:
       tags:
         - users
       summary: Проверка состояния авторизации пользователя.
+      security:
+        - tokenAuth: []
       description: Возвращает информацию по авторизованному пользователю.
       parameters:
         - name: X-Token
@@ -123,15 +190,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthUser'
-        '401':
+                $ref: '#/components/schemas/User'
+        '400':
           description: Пользователь не авторизован
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/checkAuthErrorMessage'
-      security:
-        - tokenAuth: []
+
 
   /users/logout:
     delete:
@@ -182,18 +248,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RentOfferData'
+              $ref: '#/components/schemas/RentOfferFullInfo'
+        required: true
 
       responses:
         '200':
-          description: возвращает объект с информацией о созданном предложениии с присвоенным id и датой создания.
+          description: Возвращает объект с информацией о созданном предложениии с присвоенным id и датой создания.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RentOfferFullInfo'
 
+        '400':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/checkAuthErrorMessage'
+
         '401':
-          description: ошибка при создании предложения
+          description: Ошибка при создании предложения. Какие-то поля отсутствуют или не удовлетворяют условиям
           content:
             application/json:
               schema:
@@ -204,7 +278,16 @@ paths:
       tags:
         - rent-offers
       summary: Получить список предложений
-      description: Получение списка доступных предложений.
+      description:
+        Получение списка доступных предложений. По умолчанию сервис возвращает не больше 60 предложений по аренде.
+        В параметрах запроса можно указать требуемое количество. Предложения отсортированы по дате публикации по убыванию
+      parameters:
+        - in: query
+          name: count
+          description: Пользователь может указать необходимое количество предложений для просмотра
+          schema:
+            type: integer
+            minimum: 1
       responses:
         '200':
           description: Массив предложений.
@@ -217,14 +300,75 @@ paths:
                   allOf:
                     - $ref: '#/components/schemas/RentOfferBasicInfo'
 
+  /rent-offers/premium:
+    get:
+      tags:
+      - rent-offers
+      summary: Получение списка премиальных предложений.
+      security:
+        - tokenAuth: []
+      description:
+        Получение списка премиальных предложений для определенного города.
+        Сервис возвращает всегда не более 3 предложений, сортированных по дате
+        публикации по убыванию. Доступно только авторизованным пользователям.
+      parameters:
+        - name: city
+          in: query
+          description: Название города.
+          required: true
+          schema:
+            type: string
+            enum:
+            - paris
+            - cologne
+            - brussels
+            - amsterdam
+            - hamburg
+            - dusseldorf
+        - name: X-Token
+          in: header
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+
+      responses:
+        '200':
+          description: Массив премиальных предложений.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  allOf:
+                    - $ref: '#/components/schemas/RentOfferBasicInfo'
+
+        '400':
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/checkAuthErrorMessage'
+
+
+
+
   /rent-offers/{offerId}:
     get:
       tags:
       - rent-offers
       summary: Получение информации о предложении
-      security:
-        - tokenAuth: []
       description: Получение детальной информации о предложении.
+      parameters:
+        - name: offerId
+          in: path
+          description: id предложения, которое нужно получить
+          required: true
+          schema:
+            type: string
+            example: 34423545
       responses:
         '200':
           description: Объект предложения
@@ -240,14 +384,76 @@ paths:
               schema:
                 $ref: '#/components/schemas/offerNotFoundMessage'
 
-    patch:
+    put:
       tags:
-      - rent-offers
-      summary: Обновление информации о предложении пользователем
+        - rent-offers
+      summary: Добавление/удаление предложения в/из избранного
+      description: Добавлять/удалять предложения могут только авторизованные пользователи.
       security:
         - tokenAuth: []
-      description: Редактировать предложения могут только авторизованные пользователи и только предложения, созданные ими.
       parameters:
+        - name: offerId
+          in: path
+          description: id предложения, которое нужно обновить
+          required: true
+          schema:
+            type: string
+            example: 34423545
+        - name: X-Token
+          in: header
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+        - name: isFav
+          in: query
+          description:
+            Параметр определяющий добавить или удалить предложение из избранного.
+            0 - удалить, 1 - добавить.
+          required: true
+          schema:
+            type: integer
+            enum:
+              - 0
+              - 1
+
+      responses:
+        '200':
+          description: изменения успешно применены.
+
+        '400':
+          description: Пользователь не авторизован.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/checkAuthErrorMessage'
+
+        '404':
+          description: Предложение не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offerNotFoundMessage'
+
+
+
+
+    post:
+      tags:
+      - rent-offers
+      summary: Обновление информации о предложении.
+      description: Редактировать предложения могут только авторизованные пользователи и только предложения, созданные ими.
+      security:
+        - tokenAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          description: id предложения, которое нужно обновить
+          required: true
+          schema:
+            type: string
+            example: 34423545
         - name: X-Token
           in: header
           description: Авторизационный токен пользователя
@@ -257,13 +463,10 @@ paths:
             example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
       requestBody:
         content:
-          # application/json:
-          #   schema:
-          #     $ref: '#/components/schemas/RentOfferData'
-          anyOf:
-            - schema:
-              type: string
-              example: 123
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RentOfferFullInfo'
+
 
       responses:
         '200':
@@ -274,11 +477,11 @@ paths:
                 $ref: '#/components/schemas/RentOfferFullInfo'
 
         '400':
-          description: Ошибка при редактировании предложения другого пользователя
+          description: Пользователь не авторизован.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/editOfferErrorMessage'
+                $ref: '#/components/schemas/checkAuthErrorMessage'
 
         '401':
           description: ошибка при редактировании предложения
@@ -287,37 +490,159 @@ paths:
               schema:
                 $ref: '#/components/schemas/validationOfferErrorMessage'
 
+        '402':
+          description: Ошибка при редактировании предложения другого пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/editOfferErrorMessage'
+
+
+    delete:
+      tags:
+        - rent-offers
+      summary:  Удаление предложения.
+      security:
+        - tokenAuth: []
+      description: Удалять предложения могут только авторизованные пользователи и только предложения, созданные ими.
+      parameters:
+        - name: offerId
+          in: path
+          description: id предложения, которое нужно удалить
+          required: true
+          schema:
+            type: string
+            example: 34423545
+        - name: X-Token
+          in: header
+          description: Авторизационный токен пользователя
+          required: true
+          schema:
+            type: string
+            example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+      responses:
+        '200':
+          description: Предложение успешно удалено вместе с комментариями к нему
+
+        '400':
+          description: Пользователь не авторизован.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/checkAuthErrorMessage'
+
+        '402':
+          description: Ошибка при удалении предложения другого пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/editOfferErrorMessage'
+
+
+  /rent-offers/{offerId}/comments:
+    get:
+      tags:
+        - comments
+      summary: Получение списка комментариев к определенному предложению
+      description:
+        Сервис всегда возвращает список из 50 (или меньше) последних комментариев.
+        Комментарии отсортированы по дате публикации (по убыванию). Сначала новые, потом старые.
+      parameters:
+        - name: offerId
+          in: path
+          description: id предложения, к которому нужны комментарии.
+          required: true
+          schema:
+            type: number
+            example: 34423545
+      responses:
+        '200':
+          description: Массив комментариев
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Comment'
+
+    post:
+      tags:
+        - comments
+      summary: Создание нового комментария.
+      security:
+        - tokenAuth: []
+      description: Создавать комментарии могут только авторизованные пользователи.
+      parameters:
+      - name: offerId
+        in: path
+        description: id предложения, к которому нужны комментарии.
+        required: true
+        schema:
+          type: number
+          example: 34423545
+      - name: X-Token
+        in: header
+        description: Авторизационный токен пользователя
+        required: true
+        schema:
+          type: string
+          example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+              required: true
+      responses:
+        '200':
+          description: Созданный объект комментария
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+
+        '400':
+          description: Пользователь не авторизован.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/checkAuthErrorMessage'
+
+        '402':
+          description: Ошибка при создании комментария
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationCommentErrorMessage'
+
+
+
+
 
 components:
   schemas:
-  #User schemas'
-    UserData:
-      type: object
-      properties:
-        email:
-          type: string
-          example: test@somemail.com
-        username:
-          type: string
-          example: SomeNick
-        password:
-          type: string
-          example: qwerty123
-
     User:
       type: object
       properties:
         id:
           type: number
           example: 6329c3d6a04ab1061c6425ea
+          readOnly: true
         email:
           type: string
+          format: email
           example: test@somemail.com
+        password:
+          type: string
+          minLength: 6
+          maxLength: 12
+          example: kek1337
+          writeOnly: true
         username:
           type: string
           example: SomeNick
         status:
           type: string
+          readOnly: true
           enum:
             - обычный
             - pro
@@ -326,38 +651,38 @@ components:
           type: string
           format: binary
           example: /static/avatar/3.jpg
+        authToken:
+          type: string
+          example: "T2xpdmVyLmNvbm5lckBnbWFpbC5jb20="
+          readOnly: true
+      required:
+        - email
+        - username
+        - password
 
     RequestAuth:
       type: object
       properties:
         email:
           type: string
+          format: email
           example: test@somemail.com
         password:
           type: string
+          minLength: 6
+          maxLength: 12
           example: qwerty123
+          writeOnly: true
+      required:
+        - email
+        - password
 
-    AuthUser:
+    regUserErrorMessage:
       type: object
       properties:
-        id:
-          type: number
-          example: 6329c3d6a04ab1061c6425ea
-        email:
+        errorMessage:
           type: string
-          example: test@somemail.com
-        username:
-          type: string
-          example: SomeNick
-        status:
-          type: string
-          example: обычный
-        avatarPath:
-          type: string
-          example: /static/avatar/3.jpg
-        authToken:
-          type: string
-          example: "T2xpdmVyLmNvbm5lckBnbWFpbC5jb20="
+          example: Пользователь с таким e-mail уже существует
 
     failedUploadAvatarMessage:
       type: object
@@ -388,15 +713,57 @@ components:
           example: Ошибка запроса.
 
 
-    #Rent offer schemas'
-    RentOfferData:
+    #Rent offer schemas
+    Advertiser-Author:
       type: object
       properties:
+        id:
+          type: number
+          example: 335425
+        email:
+          type: string
+          format: email
+          example: test@somemail.com
+        username:
+          type: string
+          example: SomeNick
+        status:
+          type: string
+          enum:
+            - обычный
+            - pro
+          example: обычный
+        avatarPath:
+          type: string
+          format: binary
+          example: /static/avatar/3.jpg
+
+
+    RentOfferFullInfo:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1232
+          readOnly: true
+        offerDate:
+          type: string
+          format: date-time
+          example: "Sat May 27 2023 13:13:43 GMT+0300 (Москва, стандартное время)"
+          readOnly: true
+        commentsCount:
+          type: number
+          example: 50
+          readOnly: true
         title:
           type: string
+          minLength: 10
+          maxLength: 100
           example: Beautiful & luxurious studio at great location
         description:
           type: string
+          minLength: 20
+          maxLength: 1024
           example: A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam.
         city:
           type: string
@@ -413,6 +780,8 @@ components:
           example: preview-img/1.png
         images:
           type: array
+          minItems: 6
+          maxItems: 6
           example:
             - img/1.png
             - img/2.png
@@ -425,6 +794,8 @@ components:
           example: true
         rating:
           type: number
+          minimum: 1
+          maximum: 5
           example: 4.8
         type:
           type: string
@@ -436,12 +807,18 @@ components:
           example: apartment
         bedrooms:
           type: number
+          minimum: 1
+          maximum: 8
           example: 3
         maxAdults:
           type: number
           example: 4
+          minimum: 1
+          maximum: 10
         price:
           type: number
+          minimum: 100
+          maximum: 100000
           example: 120
         goods:
           type: array
@@ -454,6 +831,7 @@ components:
             - Washer
             - Towels
             - Fridge
+          minItems: 1
           example:
             - Heating
             - Washer
@@ -466,6 +844,16 @@ components:
             longitude:
               type: number
               example: 4.673877537499948
+          required:
+            - latitude
+            - longitude
+        advertiser:
+          type: object
+          $ref: '#/components/schemas/Advertiser-Author'
+          readOnly: true
+      additionalProperties: false
+      minProperties: 14
+
 
     RentOfferBasicInfo:
       type: object
@@ -504,29 +892,6 @@ components:
           type: number
           example: 120
 
-
-
-    RentOfferFullInfo:
-      type: object
-      properties:
-        id:
-          type: number
-          example: 3454353
-        offerDate:
-          type: string
-          example: "Sat May 27 2023 13:13:43 GMT+0300 (Москва, стандартное время)"
-        commentsCount:
-          type: number
-          example: 50
-        rentOffer:
-          type: object
-          $ref: '#/components/schemas/RentOfferData'
-        advertiser:
-          type: object
-          $ref: '#/components/schemas/User'
-
-
-
     validationOfferErrorMessage:
       type: object
       properties:
@@ -546,8 +911,47 @@ components:
       properties:
         errorMessage:
           type: string
-          example: Вы не можете редактировть предложения других пользователей.
+          example: Вы не можете редактировть или удалять предложения других пользователей.
 
+
+    #  comment schemas
+    Comment:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 34343
+          readOnly: true
+        text:
+          type: string
+          minLength: 5
+          maxLength: 1024
+          example: Some comment about this offer.
+        pubDate:
+          type: string
+          format: date-time
+          example: "Sat May 27 2023 13:13:43 GMT+0300 (Москва, стандартное время)"
+          readOnly: true
+        rating:
+          type: number
+          minimum: 1
+          maximum: 5
+        author:
+          type: object
+          readOnly: true
+          $ref: '#/components/schemas/Advertiser-Author'
+
+      required:
+        - text
+        - rating
+
+
+    validationCommentErrorMessage:
+      type: object
+      properties:
+        errorMessage:
+          type: string
+          example: Невозможно создать комментарий. Проверьте данные
 
 
   securitySchemes:
