@@ -1,6 +1,6 @@
 import typegoose, { Ref, defaultClasses, getModelForClass } from '@typegoose/typegoose';
 
-import { City } from '../../types/city.type.js';
+import { CityName } from '../../types/city.type.js';
 import { OfferType } from '../../types/offer-type.type.js';
 import { Goods } from '../../types/goods.type.js';
 import { UserEntity } from '../user/user.entity.js';
@@ -8,6 +8,17 @@ import { UserEntity } from '../user/user.entity.js';
 const {prop, modelOptions} = typegoose;
 
 class Location {
+  @prop({required: true})
+  public latitude!: number;
+
+  @prop({required: true})
+  public longitude!: number;
+}
+
+class City {
+  @prop({required: true, type: () => String, enum: CityName})
+  public name!: CityName;
+
   @prop({required: true})
   public latitude!: number;
 
@@ -33,7 +44,7 @@ export class RentOfferEntity extends defaultClasses.TimeStamps {
   @prop({required: true})
   public offerDate!: Date;
 
-  @prop({required: true, type: () => String, enum: City})
+  @prop({required: true, _id: false})
   public city!: City;
 
   @prop({required: true})
@@ -68,6 +79,9 @@ export class RentOfferEntity extends defaultClasses.TimeStamps {
 
   @prop({ ref: UserEntity, required: true })
   public advertiserId!: Ref<UserEntity>;
+
+  @prop({default: 0})
+  public commentCount!: number;
 
   @prop({required: true, _id: false})
   public location!: Location;
