@@ -57,7 +57,8 @@ paths:
           description: id пользователя
           required: true
           schema:
-            type: number
+            type: string
+            example: Td233jJf4f9
       requestBody:
         content:
           image/jpeg:
@@ -91,6 +92,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/failedUploadAvatarMessage'
 
+        "403":
+          description: Несоответствие токена и id пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/wrongPathErrorMessage'
 
   /users/{userId}/favorites:
      get:
@@ -108,7 +115,8 @@ paths:
           description: id пользователя
           required: true
           schema:
-            type: number
+            type: string
+            example: Td233jJf4f9
         - name: X-Token
           in: header
           description: Авторизационный токен пользователя
@@ -135,6 +143,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/checkAuthErrorMessage'
+
+
+        '403':
+          description: Несоответствие токена и id пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/wrongPathErrorMessage'
 
 
   /users/auth:
@@ -267,7 +283,7 @@ paths:
                 $ref: '#/components/schemas/checkAuthErrorMessage'
 
         '401':
-          description: Ошибка при создании предложения. Какие-то поля отсутствуют или не удовлетворяют условиям
+          description: Ошибка при создании предложения. Не пройдена валидация.
           content:
             application/json:
               schema:
@@ -284,6 +300,7 @@ paths:
       parameters:
         - in: query
           name: count
+          required: false
           description: Пользователь может указать необходимое количество предложений для просмотра
           schema:
             type: integer
@@ -340,6 +357,7 @@ paths:
             application/json:
               schema:
                 type: array
+                maxItems: 3
                 items:
                   type: object
                   allOf:
@@ -351,7 +369,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/checkAuthErrorMessage'
-
 
 
 
@@ -368,7 +385,7 @@ paths:
           required: true
           schema:
             type: string
-            example: 34423545
+            example: Td233jJf4f9
       responses:
         '200':
           description: Объект предложения
@@ -398,7 +415,7 @@ paths:
           required: true
           schema:
             type: string
-            example: 34423545
+            example: Td233jJf4f9
         - name: X-Token
           in: header
           description: Авторизационный токен пользователя
@@ -453,7 +470,7 @@ paths:
           required: true
           schema:
             type: string
-            example: 34423545
+            example: jkjkJ34j2ji
         - name: X-Token
           in: header
           description: Авторизационный токен пользователя
@@ -490,7 +507,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/validationOfferErrorMessage'
 
-        '402':
+        '403':
           description: Ошибка при редактировании предложения другого пользователя
           content:
             application/json:
@@ -512,7 +529,7 @@ paths:
           required: true
           schema:
             type: string
-            example: 34423545
+            example: Td233jJf4f9
         - name: X-Token
           in: header
           description: Авторизационный токен пользователя
@@ -531,7 +548,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/checkAuthErrorMessage'
 
-        '402':
+        '403':
           description: Ошибка при удалении предложения другого пользователя
           content:
             application/json:
@@ -553,8 +570,8 @@ paths:
           description: id предложения, к которому нужны комментарии.
           required: true
           schema:
-            type: number
-            example: 34423545
+            type: string
+            example: Td233jJf4f9
       responses:
         '200':
           description: Массив комментариев
@@ -577,8 +594,8 @@ paths:
         description: id предложения, к которому нужны комментарии.
         required: true
         schema:
-          type: number
-          example: 34423545
+          type: string
+          example: Td233jJf4f9
       - name: X-Token
         in: header
         description: Авторизационный токен пользователя
@@ -608,7 +625,7 @@ paths:
                 $ref: '#/components/schemas/checkAuthErrorMessage'
 
         '402':
-          description: Ошибка при создании комментария
+          description: Ошибка при создании комментария. Не пройдена валидация
           content:
             application/json:
               schema:
@@ -624,7 +641,7 @@ components:
       type: object
       properties:
         id:
-          type: number
+          type: string
           example: 6329c3d6a04ab1061c6425ea
           readOnly: true
         email:
@@ -705,6 +722,13 @@ components:
           type: string
           example: Пользователь с таким email не существует.
 
+    wrongPathErrorMessage:
+      type: object
+      properties:
+        errorMessage:
+          type: string
+          example: Некорректный id пользователя.
+
     logOutErrorMessage:
       type: object
       properties:
@@ -718,8 +742,8 @@ components:
       type: object
       properties:
         id:
-          type: number
-          example: 335425
+          type: string
+          example: jkjDk3djk
         email:
           type: string
           format: email
@@ -749,7 +773,7 @@ components:
         offerDate:
           type: string
           format: date-time
-          example: "Sat May 27 2023 13:13:43 GMT+0300 (Москва, стандартное время)"
+          example: "2023-10-05T14:48:00.000Z"
           readOnly: true
         commentsCount:
           type: number
@@ -780,6 +804,9 @@ components:
           example: preview-img/1.png
         images:
           type: array
+          items:
+            type: string
+            format: binary
           minItems: 6
           maxItems: 6
           example:
@@ -863,7 +890,7 @@ components:
           example: 3452443
         offerDate:
           type: string
-          example: "Sat May 27 2023 13:13:43 GMT+0300 (Москва, стандартное время)"
+          example: "2023-10-05T14:48:00.000Z"
         commentsCount:
           type: number
           example: 50
@@ -919,8 +946,8 @@ components:
       type: object
       properties:
         id:
-          type: number
-          example: 34343
+          type: string
+          example: j4kjk4j
           readOnly: true
         text:
           type: string
@@ -930,7 +957,7 @@ components:
         pubDate:
           type: string
           format: date-time
-          example: "Sat May 27 2023 13:13:43 GMT+0300 (Москва, стандартное время)"
+          example: "2023-10-05T14:48:00.000Z"
           readOnly: true
         rating:
           type: number
