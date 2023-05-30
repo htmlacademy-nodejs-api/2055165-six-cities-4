@@ -659,7 +659,6 @@ components:
           example: SomeNick
         status:
           type: string
-          readOnly: true
           enum:
             - обычный
             - pro
@@ -676,6 +675,7 @@ components:
         - email
         - username
         - password
+        - status
 
     RequestAuth:
       type: object
@@ -767,8 +767,8 @@ components:
       type: object
       properties:
         id:
-          type: number
-          example: 1232
+          type: string
+          example: jkj3k2k3
           readOnly: true
         offerDate:
           type: string
