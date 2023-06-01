@@ -6,7 +6,6 @@ import type { OfferType } from '../../../types/offer-type.type.js';
 export default class UpdateRentOfferDto {
   public title?: string;
   public description?: string;
-  public offerDate?: Date;
   public city?: City;
   public previewImage?: string;
   public images?: string[];

@@ -1,6 +1,7 @@
 import { OfferGeneratorInterface } from './offer-generator.interface.js';
 import { getRandomOfferDate, getRandomNumber, getRandomArrItem, getRandomArrItems } from '../../core/utils/randoms.js';
-import { Cities, CityName } from '../../types/city.type.js';
+import { CityName } from '../../types/city.type.js';
+import { Cities } from '../rent-offer/rent-offer.constants.js';
 import { OfferType } from '../../types/offer-type.type.js';
 import { Goods } from '../../types/goods.type.js';
 import { UserStatus } from '../../types/user-status.type.js';

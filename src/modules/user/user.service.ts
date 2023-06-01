@@ -2,10 +2,13 @@ import { injectable, inject } from 'inversify';
 import type { DocumentType, types } from '@typegoose/typegoose';
 
 import { UserEntity } from './user.entity.js';
-import CreateUserDto from './create-user.dto.js';
+import CreateUserDto from './dto/create-user.dto.js';
 import {UserServiceInterface} from './user-service.interface.js';
 import { LoggerInterface } from '../../core/logger/logger.interface.js';
 import { AppComponent } from '../../types/app-component.type.js';
+import UpdateUserDto from './dto/update-user.dto.js';
+import { RentOfferEntity } from '../rent-offer/rent-offer.entity.js';
+import { SortType } from '../../types/sort-order.type.js';
 
 @injectable()
 export default class UserService implements UserServiceInterface {
@@ -27,11 +30,11 @@ export default class UserService implements UserServiceInterface {
   }
 
   public async findByEmail(email: string): Promise<DocumentType<UserEntity> | null> {
-    return await this.userModel.findOne({email}).exec();
+    return this.userModel.findOne({email}).exec();
   }
 
   public async findById(userId: string): Promise<DocumentType<UserEntity> | null> {
-    return await this.userModel.findById(userId).exec();
+    return this.userModel.findById(userId).exec();
   }
 
   public async findOrCreate(dto: CreateUserDto, salt: string): Promise<DocumentType<UserEntity>> {
@@ -42,5 +45,19 @@ export default class UserService implements UserServiceInterface {
     }
 
     return this.create(dto, salt);
+  }
+
+  public async updateById(userId: string, dto: UpdateUserDto): Promise<DocumentType<UserEntity> | null> {
+    return this.userModel
+      .findByIdAndUpdate(userId, dto, {new: true})
+      .exec();
+  }
+
+  public async findUserFavorites(userId: string): Promise<DocumentType<RentOfferEntity>[] | null> {
+    return this.userModel
+      .findById(userId, {favorites: true, _id: false})
+      .populate('favorites')
+      .sort({createdAt: SortType.Down})
+      .exec() as Promise<DocumentType<RentOfferEntity>[] | null>;
   }
 }
