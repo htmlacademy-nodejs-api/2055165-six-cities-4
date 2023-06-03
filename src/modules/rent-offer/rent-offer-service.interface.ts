@@ -10,7 +10,7 @@ export interface RentOfferServiceInterface {
 
   findById(offerId: string): Promise<DocumentType<RentOfferEntity> | null>;
 
-  find(): Promise<DocumentType<RentOfferEntity>[]>;
+  find(count?: number): Promise<DocumentType<RentOfferEntity>[]>;
 
   updateById(offerId: string, dto: UpdateRentOfferDto): Promise<DocumentType<RentOfferEntity> | null>;
 
