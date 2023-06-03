@@ -1,4 +1,4 @@
-import typegoose, { Ref, defaultClasses, getModelForClass } from '@typegoose/typegoose';
+import typegoose, { Ref, defaultClasses } from '@typegoose/typegoose';
 
 import type { User } from '../../types/user.type.js';
 import { UserStatus } from '../../types/user-status.type.js';
@@ -28,7 +28,7 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
   @prop({required: true, type: () => String, enum: UserStatus})
   public status!: UserStatus;
 
-  @prop({required: true, ref: RentOfferEntity, _id: false, default: [], type: () => [String]})
+  @prop({required: true, ref: () => RentOfferEntity, _id: false, default: [], type: () => [String]})
   public favorites!: Ref<RentOfferEntity>[];
 
   @prop({required: true})
@@ -52,4 +52,4 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
   }
 }
 
-export const UserModel = getModelForClass(UserEntity);
+// export const UserModel = getModelForClass(UserEntity);

@@ -1,4 +1,4 @@
-import typegoose, { defaultClasses, getModelForClass, Ref } from '@typegoose/typegoose';
+import typegoose, { defaultClasses, Ref } from '@typegoose/typegoose';
 
 import { RentOfferEntity } from '../rent-offer/rent-offer.entity.js';
 import { UserEntity } from '../user/user.entity.js';
@@ -20,16 +20,14 @@ export class CommentEntity extends defaultClasses.TimeStamps {
   public rating!: number;
 
   @prop({
-    ref: RentOfferEntity,
+    ref: () => RentOfferEntity,
     required: true
   })
   public offerId!: Ref<RentOfferEntity>;
 
   @prop({
-    ref: UserEntity,
+    ref: () => UserEntity,
     required: true,
   })
   public authorId!: Ref<UserEntity>;
 }
-
-export const CommentModel = getModelForClass(CommentEntity);
