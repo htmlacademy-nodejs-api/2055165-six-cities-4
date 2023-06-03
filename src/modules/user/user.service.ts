@@ -54,10 +54,19 @@ export default class UserService implements UserServiceInterface {
   }
 
   public async findUserFavorites(userId: string): Promise<DocumentType<RentOfferEntity>[] | null> {
-    return this.userModel
+
+    const user = await this.userModel
       .findById(userId, {favorites: true, _id: false})
-      .populate('favorites')
-      .sort({createdAt: SortType.Down})
-      .exec() as Promise<DocumentType<RentOfferEntity>[] | null>;
+      .populate<{favorites: DocumentType<RentOfferEntity>[]}>('favorites', {}, '', {sort: {createdAt: SortType.Down}})
+      .orFail()
+      .exec();
+
+    return user.favorites;
+  }
+
+  public async changeFavoriteStatus(userId: string, offerId: string, status: boolean): Promise<DocumentType<UserEntity> | null> {
+    return (status)
+      ? this.userModel.findByIdAndUpdate(userId, {'$push': { favorites: offerId }}, {new: true}).exec()
+      : this.userModel.findByIdAndUpdate(userId, {'$pull': { favorites: offerId }}, {new: true}).exec();
   }
 }

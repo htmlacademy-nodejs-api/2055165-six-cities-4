@@ -65,17 +65,9 @@ export default class RentOfferService implements RentOfferServiceInterface {
       .exec();
   }
 
-  changeFavoriteStatus(offerId: string, status: boolean): Promise<DocumentType<RentOfferEntity> | null> {
-    return this.rentOfferModel
-      .findByIdAndUpdate(offerId, {'$set': { isFavorite: status }}, {new: true})
-      .populate(['advertiserId'])
-      .exec();
-  }
-
   public async incCommentCount(offerId: string): Promise<DocumentType<RentOfferEntity> | null> {
     return this.rentOfferModel
       .findByIdAndUpdate(offerId, {'$inc': { commentCount: 1 }})
       .exec();
   }
-
 }

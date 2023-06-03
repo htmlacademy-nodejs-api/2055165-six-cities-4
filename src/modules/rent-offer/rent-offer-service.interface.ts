@@ -18,7 +18,5 @@ export interface RentOfferServiceInterface {
 
   findPremium(city: CityName): Promise<DocumentType<RentOfferEntity>[]>
 
-  changeFavoriteStatus(offerId: string, status: boolean): Promise<DocumentType<RentOfferEntity> | null>;
-
   incCommentCount(offerId: string): Promise<DocumentType<RentOfferEntity> | null>;
 }

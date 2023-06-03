@@ -28,7 +28,7 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
   @prop({required: true, type: () => String, enum: UserStatus})
   public status!: UserStatus;
 
-  @prop({required: true, type: () => [String]})
+  @prop({required: true, ref: RentOfferEntity, _id: false, default: [], type: () => [String]})
   public favorites!: Ref<RentOfferEntity>[];
 
   @prop({required: true})
@@ -41,7 +41,6 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
     this.email = userData.email;
     this.avatarPath = userData.avatarPath;
     this.status = userData.status;
-    this.favorites = [];
   }
 
   public setPassword(password: string, salt: string) {
