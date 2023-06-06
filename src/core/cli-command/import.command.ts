@@ -4,13 +4,12 @@ import { createOffer } from '../utils/offer.js';
 import { getErrorMessage } from '../utils/common.js';
 import RentOfferService from '../../modules/rent-offer/rent-offer.service.js';
 import PinoLogger from '../logger/pino.logger.js';
-import { RentOfferModel } from '../../modules/rent-offer/rent-offer.entity.js';
-import { UserModel } from '../../modules/user/user.entity.js';
 import UserService from '../../modules/user/user.service.js';
 import MongoClientService from '../database-client/mongo-client.service.js';
 import { RentOffer } from '../../types/rent-offer.type.js';
 import { getRandomArrItem } from '../utils/randoms.js';
 import {passwords} from '../../../mocks/passwords.js';
+import { RentOfferModel, UserModel } from '../../modules/entities/index.js';
 
 export default class ImportCommand implements CliCommandInterface {
   public readonly name = '--import';

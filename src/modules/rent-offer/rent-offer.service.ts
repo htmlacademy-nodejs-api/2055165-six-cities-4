@@ -6,7 +6,6 @@ import { AppComponent } from '../../types/app-component.type.js';
 import { LoggerInterface } from '../../core/logger/logger.interface.js';
 import { RentOfferEntity } from './rent-offer.entity.js';
 import CreateRentOfferDto from './dto/create-rent-offer.dto.js';
-import { CityName } from '../../types/city.type.js';
 import UpdateRentOfferDto from './dto/update-rent-offer.dto.js';
 import { DEFAULT_OFFERS_COUNT, MAX_PREMIUM_OFFERS_COUNT } from './rent-offer.constants.js';
 import { SortType } from '../../types/sort-order.type.js';
@@ -24,7 +23,7 @@ export default class RentOfferService implements RentOfferServiceInterface {
     const rentOfferEntry = await this.rentOfferModel.create({...dto, offerDate: new Date()});
     this.logger.info(`New offer created: ${dto.title}`);
 
-    return rentOfferEntry;
+    return rentOfferEntry.populate(['advertiserId']);
   }
 
   public async findById(offerId: string): Promise<DocumentType<RentOfferEntity> | null> {
@@ -39,7 +38,6 @@ export default class RentOfferService implements RentOfferServiceInterface {
     return this.rentOfferModel
       .find({}, {}, {limit})
       .sort({createdAt: SortType.Down})
-      .populate(['advertiserId'])
       .exec();
   }
 
@@ -56,12 +54,11 @@ export default class RentOfferService implements RentOfferServiceInterface {
       .exec();
   }
 
-  public async findPremium(city: CityName): Promise<DocumentType<RentOfferEntity>[]> {
+  public async findPremium(city: string): Promise<DocumentType<RentOfferEntity>[]> {
     const limit = MAX_PREMIUM_OFFERS_COUNT;
     return this.rentOfferModel
-      .find({'city.name': `${city}`}, {}, {limit})
+      .find({'city.name': `${city}`, 'isPremium': true}, {}, {limit})
       .sort({createdAt: SortType.Down})
-      .populate(['advertiserId'])
       .exec();
   }
 

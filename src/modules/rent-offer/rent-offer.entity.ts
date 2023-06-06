@@ -5,7 +5,6 @@ import { CityName } from '../../types/city.type.js';
 import { OfferType } from '../../types/offer-type.type.js';
 import { Goods } from '../../types/goods.type.js';
 
-
 const {prop, modelOptions} = typegoose;
 
 class Location {
@@ -82,7 +81,7 @@ export class RentOfferEntity extends defaultClasses.TimeStamps {
   public advertiserId!: Ref<UserEntity>;
 
   @prop({default: 0})
-  public commentCount!: number;
+  public commentsCount!: number;
 
   @prop({required: true, _id: false})
   public location!: Location;
