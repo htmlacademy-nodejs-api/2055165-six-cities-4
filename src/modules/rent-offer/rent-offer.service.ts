@@ -20,7 +20,7 @@ export default class RentOfferService implements RentOfferServiceInterface {
   ) {}
 
   public async create(dto: CreateRentOfferDto): Promise<DocumentType<RentOfferEntity>> {
-    const rentOfferEntry = await this.rentOfferModel.create({...dto, offerDate: new Date()});
+    const rentOfferEntry = await this.rentOfferModel.create(dto);
     this.logger.info(`New offer created: ${dto.title}`);
 
     return rentOfferEntry.populate(['advertiserId']);

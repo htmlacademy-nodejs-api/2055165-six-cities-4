@@ -10,6 +10,7 @@ import { fillRDO } from '../../core/utils/common.js';
 import RentOfferService from '../rent-offer/rent-offer.service.js';
 import RentOfferBasicRDO from '../rent-offer/rdo/rent-offer-basic.rdo.js';
 import { RentOfferFullRDO } from './rdo/rent-offer-full.rdo.js';
+import HttpError from '../../core/errors/http-error.js';
 
 @injectable()
 export default class RentOfferController extends Controller {
@@ -55,12 +56,8 @@ export default class RentOfferController extends Controller {
   public async getOffers(req: Request, res: Response): Promise<void> {
 
     const {params: {count}} = req;
-    let offers;
-    if (count && Number.isInteger(+count)) {
-      offers = await this.rentOfferService.find(+count);
-    } else {
-      offers = await this.rentOfferService.find();
-    }
+
+    const offers = await this.rentOfferService.find(Number.parseInt(count, 10));
 
     const offersResponse = offers?.map((offer) => fillRDO(RentOfferBasicRDO, offer));
     this.ok(res, offersResponse);
@@ -70,9 +67,11 @@ export default class RentOfferController extends Controller {
     const {query: {city}} = req;
 
     if (!city) {
-      const errorMessage = 'Incorrect path Error. Check your request';
-      this.send(res, StatusCodes.BAD_REQUEST, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        'Incorrect path Error. Check your request',
+        'RestOfferController'
+      );
     }
 
     const premiumOffers = await this.rentOfferService.findPremium(city.toString());
@@ -85,9 +84,11 @@ export default class RentOfferController extends Controller {
     const {params: {offerId}} = req;
 
     if (!offerId) {
-      const errorMessage = 'Incorrect path Error. Check your request';
-      this.send(res, StatusCodes.BAD_REQUEST, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        'Incorrect path Error. Check your request',
+        'RestOfferController'
+      );
     }
 
     const offer = await this.rentOfferService.findById(offerId);
@@ -99,20 +100,24 @@ export default class RentOfferController extends Controller {
     const reqToken = req.get('X-token');
 
     if (!reqToken) {
-      const errorMessage = 'Access denied. Only for authorized users.';
-      this.send(res, 401, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Access denied. Only for authorized users.',
+        'RestOfferController'
+      );
     }
 
-    const {params: {offerId}, body} = req;
+    const {params: {offerId}, body: updateData} = req;
 
     if (!offerId) {
-      const errorMessage = 'Incorrect path Error. Check your request';
-      this.send(res, StatusCodes.BAD_REQUEST, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        'Incorrect path Error. Check your request',
+        'RestOfferController'
+      );
     }
 
-    const updatedOffer = await this.rentOfferService.updateById(offerId, body);
+    const updatedOffer = await this.rentOfferService.updateById(offerId, updateData);
     this.ok(res, fillRDO(RentOfferFullRDO, updatedOffer));
   }
 
@@ -121,17 +126,21 @@ export default class RentOfferController extends Controller {
     const reqToken = req.get('X-token');
 
     if (!reqToken) {
-      const errorMessage = 'Access denied. Only for authorized users.';
-      this.send(res, 401, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Access denied. Only for authorized users.',
+        'RestOfferController'
+      );
     }
 
     const {params: {offerId}} = req;
 
     if (!offerId) {
-      const errorMessage = 'Incorrect path Error. Check your request';
-      this.send(res, StatusCodes.BAD_REQUEST, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        'Incorrect path Error. Check your request',
+        'RestOfferController'
+      );
     }
 
     await this.rentOfferService.deleteById(offerId);

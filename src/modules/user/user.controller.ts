@@ -10,9 +10,11 @@ import { StatusCodes } from 'http-status-codes';
 import { createSHA256, fillRDO } from '../../core/utils/common.js';
 import { ConfigInterface } from '../../core/config/config.interface.js';
 import { RestSchema } from '../../core/config/rest.schema.js';
-import AuthUserRDO from './rdo/auth-user.rdo.js';
+import NewUserRDO from './rdo/new-user.rdo.js';
 import RentOfferService from '../rent-offer/rent-offer.service.js';
 import RentOfferBasicRDO from '../rent-offer/rdo/rent-offer-basic.rdo.js';
+import CreateUserDTO from './dto/create-user.dto.js';
+import HttpError from '../../core/errors/http-error.js';
 
 @injectable()
 export default class UserController extends Controller {
@@ -35,70 +37,81 @@ export default class UserController extends Controller {
     this.addRoute({path: '/:userId/favorites/', method: HttpMethod.Get, handler:this.getFavorites});
   }
 
-  public async register(req: Request, res: Response): Promise<void> {
-    const {body} = req;
+  public async register(req: Request<Record<string, unknown>, Record<string, unknown>, CreateUserDTO>, res: Response): Promise<void> {
+    const {body: registerData} = req;
 
-    const existUser = await this.userService.findByEmail(body.email);
+    const existUser = await this.userService.findByEmail(registerData.email);
 
     if (existUser) {
-      const errorMessage = 'User with email already exists. Please enter another email.';
-      this.send(res, StatusCodes.BAD_REQUEST, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.CONFLICT,
+        'User with such email already exists. Please enter another email.',
+        'UserController'
+      );
     }
 
-    const newUser = await this.userService.create(body, this.configService.get('SALT'));
+    const newUser = await this.userService.create(registerData, this.configService.get('SALT'));
     // необходима доработка генерации токена и хранения в дб
-    this.created(res, fillRDO(AuthUserRDO, {...newUser.toObject(), id: newUser._id, authToken: 'token'}));
+    this.created(res, fillRDO(NewUserRDO, newUser));
   }
 
-  public checkAuth(req: Request, res: Response): void {
+  public checkAuth(req: Request, _res: Response): void {
     /*
     Будет доставаться токен из req Header, и проверяться с токеном в базе, будет добавлено позже
     */
     const reqToken = req.get('X-token');
 
     if (!reqToken) {
-      const errorMessage = 'Request Error';
-      this.send(res, StatusCodes.BAD_REQUEST, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        'Request Error - Bad token.',
+        'UserController'
+      );
     }
   }
 
-  public async requestAuth(req: Request, res: Response): Promise<void> {
+  public async requestAuth(req: Request, _res: Response): Promise<void> {
     const {body: {email, password}} = req;
     const existUser = await this.userService.findByEmail(email);
 
     if (!existUser) {
-      const errorMessage = `User with email ${email} doesn't exist.`;
-      this.send(res, StatusCodes.NOT_FOUND, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.CONFLICT,
+        `User with email ${email} doesn't exist.`,
+        'UserController'
+      );
     }
 
     const encryptPassword = createSHA256(password, this.configService.get('SALT'));
+
     if (encryptPassword !== existUser.getPassword()) {
-      const errorMessage = 'Wrong password';
-      this.send(res, StatusCodes.BAD_REQUEST, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Wrong password.',
+        'UserController'
+      );
     }
 
     // необходима доработка генерации токена и хранения в дб
-    const userResponse = fillRDO(AuthUserRDO, {...existUser.toObject(), id: existUser._id, authToken: 'token'});
-    this.ok(res, userResponse);
+    // const userResponse = fillRDO(AuthUserRDO, {...existUser.toObject(), id: existUser._id, authToken: 'token'});
+    // this.ok(res, userResponse);
   }
 
   public async loadAvatar(_req: Request, _res: Response): Promise<void> {
     throw new Error('Ещё не реализован');
   }
 
-  public async logout(req: Request, res: Response): Promise<void> {
+  public async logout(req: Request, _res: Response): Promise<void> {
     const reqToken = req.get('X-token');
     /*
     Будет доставаться токен из req Header, и проверяться с токеном в базе, будет добавлено позже
     */
     if (!reqToken) {
-      const errorMessage = 'Request Error. Ошибка завершения сеанса';
-      this.send(res, StatusCodes.BAD_REQUEST, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        'Request Error - Bad token.',
+        'UserController'
+      );
     }
   }
 
@@ -106,26 +119,33 @@ export default class UserController extends Controller {
     if(!Object.keys(req.params).includes('userId') ||
       !Object.keys(req.params).includes('offerId') ||
       !Object.keys(req.query).includes('isFav')) {
-      const errorMessage = 'Incorrect path Error. Check your request';
-      this.send(res, StatusCodes.BAD_REQUEST, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        'Incorrect path Error. Check your request',
+        'UserController'
+      );
     }
 
     /*
     Блок с проверкой токена дописать
     */
     const {params: {userId, offerId}, query: {isFav}} = req;
+
     if (!userId || !offerId || !isFav) {
-      const errorMessage = 'Incorrect path Error. Check your request';
-      this.send(res, StatusCodes.BAD_REQUEST, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        'Incorrect path Error. Check your request',
+        'UserController'
+      );
     }
 
     const existOffer = await this.rentOfferService.findById(offerId);
     if (!existOffer) {
-      const errorMessage = 'Offer with such id not found';
-      this.send(res, StatusCodes.NOT_FOUND, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.CONFLICT,
+        'Offer with such id not found',
+        'UserController'
+      );
     }
 
     //как лучше и где реализовать проверку и защиту от задвоения id оффера в массиве?
@@ -137,9 +157,11 @@ export default class UserController extends Controller {
 
   public async getFavorites(req: Request, res: Response): Promise<void> {
     if(!Object.keys(req.params).includes('userId')) {
-      const errorMessage = 'Incorrect path Error. Check your request';
-      this.send(res, StatusCodes.BAD_REQUEST, {error: errorMessage});
-      return this.logger.error(errorMessage);
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        'Incorrect path Error. Check your request',
+        'UserController'
+      );
     }
 
     const {params: {userId}} = req;

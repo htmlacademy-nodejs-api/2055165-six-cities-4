@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer';
 
-export default class AuthUserRDO {
+export default class NewUserRDO {
   @Expose()
   public username!: string;
 
@@ -12,7 +12,4 @@ export default class AuthUserRDO {
 
   @Expose()
   public avatarPath!: string;
-
-  @Expose()
-  public authToken!: string;
 }
