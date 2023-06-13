@@ -9,7 +9,6 @@ import CreateRentOfferDto from './dto/create-rent-offer.dto.js';
 import UpdateRentOfferDto from './dto/update-rent-offer.dto.js';
 import { SortType } from '../../types/sort-order.type.js';
 
-
 @injectable()
 export default class RentOfferService implements RentOfferServiceInterface {
 
@@ -19,18 +18,52 @@ export default class RentOfferService implements RentOfferServiceInterface {
   ) {}
 
   public async create(dto: CreateRentOfferDto): Promise<DocumentType<RentOfferEntity>> {
-    const rentOfferEntry = await this.rentOfferModel.create(dto);
+    const rentOfferEntry = await this.rentOfferModel.create(dto).then((offer) => {
+      offer.isFavorite = false;
+      return offer;
+    });
+
     this.logger.info(`New offer created: ${dto.title}`);
 
     return rentOfferEntry.populate(['advertiserId']);
   }
 
-  public async findById(offerId: string, isFavorite: boolean): Promise<DocumentType<RentOfferEntity> | null> {
-    return this.rentOfferModel
-      .findById(offerId)
-      .populate(['advertiserId'])
-      .transform((doc) => doc === null ? doc : Object.assign(doc, {isFavorite}))
-      .exec();
+  public async findById(offerId: string, userId?: string): Promise<DocumentType<RentOfferEntity> | null> {
+    let result = await this.rentOfferModel.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          pipeline: [
+            { $match: { $expr: { $eq: [userId, { $toString: '$_id'}] } } },
+            { $project: {_id: false, favorites: true}}
+          ],
+          as: 'user'
+        }
+      },
+      { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+      { $match: { $expr: { $eq: [offerId, { $toString: '$_id'}] } } },
+      {
+        $addFields: {
+          isFavorite: {
+            $cond:
+              [
+                {$and:
+                  [
+                    {$ne: [{ $type: '$user.favorites'}, 'missing']},
+                    {$in: ['$_id', '$user.favorites']}
+                  ]
+                },
+                true,
+                false
+              ]
+          }
+        }
+      },
+      { $unset: 'user' },
+    ]).exec();
+
+    result = await this.rentOfferModel.populate(result, {path: 'advertiserId'});
+    return result[0];
   }
 
   public async find(offersCount: number, userId?: string): Promise<DocumentType<RentOfferEntity>[]> {
@@ -50,9 +83,17 @@ export default class RentOfferService implements RentOfferServiceInterface {
       {
         $addFields: {
           isFavorite: {
-            $cond: [{$ne: [{ $type: '$user.favorites'}, 'missing']},
-              {$cond: [{$in: ['$_id', '$user.favorites']}, true, false]},
-              false]
+            $cond:
+              [
+                {$and:
+                  [
+                    {$ne: [{ $type: '$user.favorites'}, 'missing']},
+                    {$in: ['$_id', '$user.favorites']}
+                  ]
+                },
+                true,
+                false
+              ]
           }
         }
       },
@@ -63,10 +104,8 @@ export default class RentOfferService implements RentOfferServiceInterface {
   }
 
   public async updateById(offerId: string, dto: UpdateRentOfferDto): Promise<DocumentType<RentOfferEntity> | null> {
-    return this.rentOfferModel
-      .findByIdAndUpdate(offerId, dto, {new: true})
-      .populate(['advertiserId'])
-      .exec();
+    await this.rentOfferModel.findByIdAndUpdate(offerId, dto);
+    return this.findById(offerId);
   }
 
   public async deleteById(offerId: string): Promise<DocumentType<RentOfferEntity> | null> {
@@ -100,9 +139,17 @@ export default class RentOfferService implements RentOfferServiceInterface {
       {
         $addFields: {
           isFavorite: {
-            $cond: [{$ne: [{ $type: '$user.favorites'}, 'missing']},
-              {$cond: [{$in: ['$_id', '$user.favorites']}, true, false]},
-              false]
+            $cond:
+              [
+                {$and:
+                  [
+                    {$ne: [{ $type: '$user.favorites'}, 'missing']},
+                    {$in: ['$_id', '$user.favorites']}
+                  ]
+                },
+                true,
+                false
+              ]
           }
         }
       },
@@ -114,7 +161,11 @@ export default class RentOfferService implements RentOfferServiceInterface {
 
   public async incCommentCount(offerId: string): Promise<DocumentType<RentOfferEntity> | null> {
     return this.rentOfferModel
-      .findByIdAndUpdate(offerId, {'$inc': { commentCount: 1 }})
+      .findByIdAndUpdate(offerId, {'$inc': { commentsCount: 1 }})
       .exec();
+  }
+
+  public async exists(offerId: string): Promise<boolean> {
+    return (await this.rentOfferModel.exists({_id: offerId})) !== null;
   }
 }
