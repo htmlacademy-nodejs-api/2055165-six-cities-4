@@ -139,7 +139,7 @@ export default class UserController extends Controller {
       );
     }
 
-    const existOffer = await this.rentOfferService.findById(offerId);
+    const existOffer = await this.rentOfferService.findById(offerId, false);
     if (!existOffer) {
       throw new HttpError(
         StatusCodes.CONFLICT,
@@ -147,8 +147,6 @@ export default class UserController extends Controller {
         'UserController'
       );
     }
-
-    //как лучше и где реализовать проверку и защиту от задвоения id оффера в массиве?
 
     const status = Number.parseInt(isFav.toString(), 10) === 1;
     const updateUser = await this.userService.changeFavoriteStatus(userId, existOffer.id, status);
