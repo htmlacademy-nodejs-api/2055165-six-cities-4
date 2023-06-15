@@ -5,10 +5,10 @@ Content-Type: application/json
 
 {
   "username": "Keeekw",
-  "email": "newUser@beenon.com",
+  "email": "User@beenon.com",
   "password": "weakpass",
-  "status": "pro",
-  "avatarPath": "user-avatar-6.jpg"
+  "status": "обычный"
+  //"avatarPath": "user-avatar-6.jpg"
 }
 ###
 

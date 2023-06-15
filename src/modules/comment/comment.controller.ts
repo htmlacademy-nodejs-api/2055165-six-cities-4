@@ -7,11 +7,12 @@ import { AppComponent } from '../../types/app-component.type.js';
 import { RentOfferServiceInterface } from '../rent-offer/rent-offer-service.interface.js';
 import { LoggerInterface } from '../../core/logger/logger.interface.js';
 import { Request, Response } from 'express';
-import CreateCommentDto from './dto/create-comment.dto.js';
+import CreateCommentDTO from './dto/create-comment.dto.js';
 import HttpError from '../../core/errors/http-error.js';
 import { StatusCodes } from 'http-status-codes';
 import { fillRDO } from '../../core/utils/common.js';
 import CommentRDO from './rdo/comment.rdo.js';
+import { ValidateDTOMiddleware } from '../../core/middlewares/validate-dto.middleware.js';
 
 export default class CommentController extends Controller {
   constructor(
@@ -22,10 +23,16 @@ export default class CommentController extends Controller {
     super(logger);
 
     this.logger.info('Register routes for CommentController…');
-    this.addRoute({path: '/', method: HttpMethod.Post, handler: this.create});
+
+    this.addRoute({
+      path: '/',
+      method: HttpMethod.Post,
+      handler: this.create,
+      middlewares: [new ValidateDTOMiddleware(CreateCommentDTO)]
+    });
   }
 
-  public async create({body}: Request<object, object, CreateCommentDto>, res: Response): Promise<void> {
+  public async create({body}: Request<object, object, CreateCommentDTO>, res: Response): Promise<void> {
 
     if (!await this.offerService.exists(body.offerId)) {
       throw new HttpError(
@@ -37,6 +44,7 @@ export default class CommentController extends Controller {
 
     const comment = await this.commentService.create(body);
     await this.offerService.incCommentCount(body.offerId);
+    await this.offerService.updateRating(body.offerId);
     this.created(res, fillRDO(CommentRDO, comment));
   }
 }

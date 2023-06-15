@@ -5,13 +5,9 @@ X-token: 'somesupertoken'
 Content-Type: application/json
 
 {
-  "title": "title7",
-  "description": "long description",
-  "city": {
-        "name": "Amsterdam",
-        "latitude": 52.370216,
-        "longitude": 4.895168
-  },
+  "title": "validation test",
+  "description": "long description for validation testoffer",
+  "city": "Amsterdam",
   "previewImage": "preview.jpg",
   "images": [
         "offer-image-7.jpg",
@@ -31,10 +27,8 @@ Content-Type: application/json
         "Laptop"
   ],
   "advertiserId": "64760b2a6a803a09ab8e9a2f",
-  "location": {
-      "latitude": 50.837557,
-      "longitude": 4.351697
-  }
+  "latitude": 50.837557,
+  "longitude": 4.351697
 }
 
 ###
@@ -45,7 +39,7 @@ GET http://localhost:2000/rent-offers HTTP/1.1
 ###
 
 ## Получить список премиальных предложений города
-GET http://localhost:2000/rent-offers/premium?city=Amsterdam HTTP/1.1
+GET http://localhost:2000/rent-offers/premium?city=Paris HTTP/1.1
 
 ###
 
