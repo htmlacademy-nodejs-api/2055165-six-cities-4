@@ -21,9 +21,8 @@ export default class RentOfferBasicRDO {
   @Expose()
   public title!: string;
 
-  @Expose({name: 'createdAt'})
-  @Type(() => Date)
-  public offerDate!: Date;
+  @Expose()
+  public offerDate!: string;
 
   @Expose()
   @Type(() => City)

@@ -15,6 +15,7 @@ export class ValidateDTOMiddleware implements MiddlewareInterface {
     const errors = await validate(DTOinstance, { validationError: { target: false } });
 
     if (errors.length > 0) {
+      console.log(errors);
       res.status(StatusCodes.BAD_REQUEST).send(errors);
       return;
     }

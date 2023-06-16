@@ -51,5 +51,3 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
     return this.password;
   }
 }
-
-// export const UserModel = getModelForClass(UserEntity);

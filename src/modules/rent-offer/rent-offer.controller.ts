@@ -104,9 +104,9 @@ export default class RentOfferController extends Controller {
 
     const {params: {count}} = req;
     const offersCount = count ? Number.parseInt(count, 10) : DEFAULT_OFFERS_COUNT;
+    /* JWT токен будет добавлен позже id в методе для теста*/
 
     const offers = await this.rentOfferService.find(offersCount, '64760b2a6a803a09ab8e9a34');
-    console.log(offers);
 
     const offersResponse = offers?.map((offer) => fillRDO(RentOfferBasicRDO, offer));
     this.ok(res, offersResponse);
@@ -122,6 +122,8 @@ export default class RentOfferController extends Controller {
         'RestOfferController'
       );
     }
+
+    /* JWT токен будет добавлен позже id в методе для теста*/
 
     const premiumOffers = await this.rentOfferService.findPremium(city.toString(), MAX_PREMIUM_OFFERS_COUNT, '64760b2a6a803a09ab8e9a34');
 
@@ -140,6 +142,7 @@ export default class RentOfferController extends Controller {
       );
     }
 
+    /* JWT токен будет добавлен позже id в методе для теста*/
 
     const offer = await this.rentOfferService.findById(offerId, '64760b2a6a803a09ab8e9a34');
     this.ok(res, fillRDO(RentOfferFullRDO, offer));

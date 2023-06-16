@@ -22,7 +22,7 @@ export class RentOfferEntity extends defaultClasses.TimeStamps {
   @prop({required: true, trim: true})
   public description!: string;
 
-  @prop()
+  @prop({default: new Date()})
   public offerDate?: Date;
 
   @prop({required: true, type: () => String, enum: CityName})
@@ -33,6 +33,8 @@ export class RentOfferEntity extends defaultClasses.TimeStamps {
 
   @prop({required: true, type: () => [String]})
   public images!: string[];
+
+  public isFavorite!: boolean;
 
   @prop({required: true})
   public isPremium!: boolean;
@@ -67,6 +69,4 @@ export class RentOfferEntity extends defaultClasses.TimeStamps {
   @prop({required: true})
   public longitude!: number;
 }
-
-// export const RentOfferModel = getModelForClass(RentOfferEntity);
 

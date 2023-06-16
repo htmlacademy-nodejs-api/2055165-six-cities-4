@@ -1,4 +1,4 @@
-import {ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsEnum, IsInt, IsLatitude, IsLongitude, IsMimeType, IsMongoId, Max, MaxLength, Min, MinLength } from 'class-validator';
+import {ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsLatitude, IsLongitude, IsMimeType, IsMongoId, IsOptional, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 import { Goods } from '../../../types/goods.type.js';
 import { OfferType } from '../../../types/offer-type.type.js';
@@ -13,7 +13,11 @@ export default class CreateRentOfferDTO {
   @MaxLength(1024, {message: 'Maximum description length must be 1024 chars'})
   public description!: string;
 
-  @IsEnum(CityName, {message: 'city must be only one of the following: "Paris", "Cologne", "Brussels", "Amsterdam", "Hamburg", "Dusseldorf"'})
+  @IsOptional()
+  @IsDateString({}, {message: 'offerDate must be valid ISO date'})
+  public offerDate?: Date;
+
+  @IsEnum(CityName, {message: `city must be only one of the following: ${Object.values(CityName).join(', ')}`})
   public city!: CityName;
 
   @IsMimeType({message: 'preview must be a valid image file'})
@@ -28,7 +32,7 @@ export default class CreateRentOfferDTO {
   @IsBoolean({message: '"isPremium" field must be a boolean'})
   public isPremium!: boolean;
 
-  @IsEnum(OfferType, {message: 'offer type must be only one of the following: "apartment", "house", "room", "hotel"'})
+  @IsEnum(OfferType, {message: `offer type must be only one of the following: ${Object.values(OfferType).join(', ')}`})
   public type!: OfferType;
 
   @IsInt({message: 'bedrooms count must be an integer value'})
@@ -47,7 +51,7 @@ export default class CreateRentOfferDTO {
   public price!: number;
 
   @IsArray({message: 'field "goods" must be an array'})
-  @IsEnum(Goods, {each: true, message: 'each item in "goods" array must be one of the following: "Breakfast", "Air conditioning", "Laptop", "Friendly workspace", "Baby seat", "Washer", "Towels", "Fridge"'})
+  @IsEnum(Goods, {each: true, message: `each item in "goods" array must be one of the following: ${Object.values(Goods).join(', ')}`})
   @ArrayUnique({message: 'all items in "goods" array must be unique'})
   @ArrayMinSize(1)
   public goods!: Goods[];
