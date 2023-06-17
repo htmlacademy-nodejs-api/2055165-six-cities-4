@@ -1,7 +1,7 @@
-import { Expose, Type } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 
 import { OfferType } from '../../../types/offer-type.type.js';
-
+import { Cities } from '../rent-offer.constants.js';
 
 export class City {
   @Expose()
@@ -11,7 +11,7 @@ export class City {
   public latitude!: number;
 
   @Expose()
-  public longitude!: number;
+  public longitude!:number;
 }
 
 export default class RentOfferBasicRDO {
@@ -22,11 +22,11 @@ export default class RentOfferBasicRDO {
   public title!: string;
 
   @Expose()
-  @Type(() => Date)
-  public offerDate!: Date;
+  public offerDate!: string;
 
   @Expose()
   @Type(() => City)
+  @Transform(({ value }) => Cities[value])
   public city!: City;
 
   @Expose()

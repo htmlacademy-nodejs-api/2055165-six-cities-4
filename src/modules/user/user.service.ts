@@ -6,7 +6,6 @@ import CreateUserDTO from './dto/create-user.dto.js';
 import {UserServiceInterface} from './user-service.interface.js';
 import { LoggerInterface } from '../../core/logger/logger.interface.js';
 import { AppComponent } from '../../types/app-component.type.js';
-import UpdateUserDTO from './dto/update-user.dto.js';
 import { RentOfferEntity } from '../rent-offer/rent-offer.entity.js';
 import { SortType } from '../../types/sort-order.type.js';
 
@@ -47,12 +46,6 @@ export default class UserService implements UserServiceInterface {
     return this.create(DTO, salt);
   }
 
-  public async updateById(userId: string, DTO: UpdateUserDTO): Promise<DocumentType<UserEntity> | null> {
-    return this.userModel
-      .findByIdAndUpdate(userId, DTO, {new: true})
-      .exec();
-  }
-
   public async findUserFavorites(userId: string): Promise<DocumentType<RentOfferEntity>[] | null> {
 
     return this.userModel
@@ -68,7 +61,7 @@ export default class UserService implements UserServiceInterface {
   }
 
   public async changeFavoriteStatus(userId: string, offerId: string, status: boolean): Promise<DocumentType<UserEntity> | null> {
-    return this.userModel.findByIdAndUpdate(userId, {[`${status ? '$push' : '$pull'}`]: { favorites: offerId }}, {new: true}).exec();
+    return this.userModel.findByIdAndUpdate(userId, {[`${status ? '$addToSet' : '$pull'}`]: { favorites: offerId }}, {new: true}).exec();
   }
 
 }

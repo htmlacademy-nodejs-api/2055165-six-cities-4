@@ -1,0 +1,16 @@
+#Комментарии
+##Создание нового комментария
+POST http://localhost:2000/comments HTTP/1.1
+X-token: 'somesupertoken'
+Content-Type: application/json
+
+{
+  "text": "Новенький комментарий тестовый к оферу 6",
+  "rating": "2.4",
+  "offerId": "6487275352b1fd03b2bbcca0",
+  "authorId": "64760b2a6a803a09ab8e9a34"
+}
+
+###
+
+

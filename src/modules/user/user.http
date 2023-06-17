@@ -5,10 +5,10 @@ Content-Type: application/json
 
 {
   "username": "Keeekw",
-  "email": "newUser@beenon.com",
+  "email": "User@beenon.com",
   "password": "weakpass",
-  "status": "pro",
-  "avatarPath": "user-avatar-6.jpg"
+  "status": "обычный"
+  //"avatarPath": "user-avatar-6.jpg"
 }
 ###
 
@@ -34,7 +34,7 @@ X-token: 'somesupertoken'
 ###
 
 ## Добавление предложения в избранное
-PUT http://localhost:2000/users/64760b2a6a803a09ab8e9a34/favorites/64760b2a6a803a09ab8e9a36?isFav=1 HTTP/1.1
+PUT http://localhost:2000/users/64760b2a6a803a09ab8e9a34/favorites/6487271d52b1fd03b2bbcc9d?isFav=1 HTTP/1.1
 
 ###
 

@@ -7,25 +7,6 @@ import { Goods } from '../../types/goods.type.js';
 
 const {prop, modelOptions} = typegoose;
 
-class Location {
-  @prop({required: true})
-  public latitude!: number;
-
-  @prop({required: true})
-  public longitude!: number;
-}
-
-class City {
-  @prop({required: true, type: () => String, enum: CityName})
-  public name!: CityName;
-
-  @prop({required: true})
-  public latitude!: number;
-
-  @prop({required: true})
-  public longitude!: number;
-}
-
 export interface RentOfferEntity extends defaultClasses.Base {}
 
 @modelOptions({
@@ -41,11 +22,11 @@ export class RentOfferEntity extends defaultClasses.TimeStamps {
   @prop({required: true, trim: true})
   public description!: string;
 
-  @prop({required: true})
-  public offerDate!: Date;
+  @prop({default: new Date()})
+  public offerDate?: Date;
 
-  @prop({required: true, _id: false})
-  public city!: City;
+  @prop({required: true, type: () => String, enum: CityName})
+  public city!: CityName;
 
   @prop({required: true})
   public previewImage!: string;
@@ -53,13 +34,12 @@ export class RentOfferEntity extends defaultClasses.TimeStamps {
   @prop({required: true, type: () => [String]})
   public images!: string[];
 
-  @prop({required: true})
-  public isPremium!: boolean;
-
-  @prop({required: true})
   public isFavorite!: boolean;
 
   @prop({required: true})
+  public isPremium!: boolean;
+
+  @prop({default: 0})
   public rating!: number;
 
   @prop({required: true, type: () => String, enum: OfferType })
@@ -83,9 +63,10 @@ export class RentOfferEntity extends defaultClasses.TimeStamps {
   @prop({default: 0})
   public commentsCount!: number;
 
-  @prop({required: true, _id: false})
-  public location!: Location;
-}
+  @prop({required: true})
+  public latitude!: number;
 
-// export const RentOfferModel = getModelForClass(RentOfferEntity);
+  @prop({required: true})
+  public longitude!: number;
+}
 
