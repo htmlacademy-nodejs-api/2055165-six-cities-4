@@ -21,6 +21,7 @@ import { ValidateObjectIdMiddleware } from '../../core/middlewares/validate-id.m
 import { ValidateDTOMiddleware } from '../../core/middlewares/validate-dto.middleware.js';
 import { MAX_COMMENTS_COUNT } from '../comment/comment.constants.js';
 import UpdateRentOfferDTO from './dto/update-rent-offer.dto.js';
+import { DocumentExistsMiddleware } from '../../core/middlewares/document-exists.middleware.js';
 
 
 type ParamsGetOffer = {
@@ -50,7 +51,10 @@ export default class RentOfferController extends Controller {
       path: '/:offerId',
       method: HttpMethod.Get,
       handler: this.getOfferDetails,
-      middlewares: [new ValidateObjectIdMiddleware('offerId')]
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId')
+      ]
     });
     this.addRoute({
       path: '/:offerId',
@@ -58,6 +62,7 @@ export default class RentOfferController extends Controller {
       handler: this.updateOffer,
       middlewares: [
         new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
         new ValidateDTOMiddleware(UpdateRentOfferDTO)
       ]
     });
@@ -65,13 +70,19 @@ export default class RentOfferController extends Controller {
       path: '/:offerId',
       method: HttpMethod.Delete,
       handler:this.deleteOffer,
-      middlewares: [new ValidateObjectIdMiddleware('offerId')]
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId')
+      ]
     });
     this.addRoute({
       path: '/:offerId/comments',
       method: HttpMethod.Get,
       handler: this.getComments,
-      middlewares: [new ValidateObjectIdMiddleware('offerId')]
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId')
+      ]
     });
   }
 
@@ -123,7 +134,7 @@ export default class RentOfferController extends Controller {
       );
     }
 
-    /* JWT токен будет добавлен позже id в методе для теста*/
+    /* JWT токен будет добавлен позже! id в методе для теста*/
 
     const premiumOffers = await this.rentOfferService.findPremium(city.toString(), MAX_PREMIUM_OFFERS_COUNT, '64760b2a6a803a09ab8e9a34');
 
@@ -134,21 +145,13 @@ export default class RentOfferController extends Controller {
   public async getOfferDetails({params}: Request<core.ParamsDictionary| ParamsGetOffer>, res: Response): Promise<void> {
     const {offerId} = params;
 
-    if (!offerId) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        'Incorrect path Error. Check your request',
-        'RestOfferController'
-      );
-    }
-
     /* JWT токен будет добавлен позже id в методе для теста*/
 
     const offer = await this.rentOfferService.findById(offerId, '64760b2a6a803a09ab8e9a34');
     this.ok(res, fillRDO(RentOfferFullRDO, offer));
   }
 
-  public async updateOffer(req: Request, res: Response): Promise<void> {
+  public async updateOffer(req: Request<core.ParamsDictionary| ParamsGetOffer, Record<string, unknown>, Record<string, unknown>, UpdateRentOfferDTO>, res: Response): Promise<void> {
 
     const reqToken = req.get('X-token');
 
@@ -162,23 +165,7 @@ export default class RentOfferController extends Controller {
 
     const {params: {offerId}, body: updateData} = req;
 
-    if (!offerId) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        'Incorrect path Error. Check your request',
-        'RestOfferController'
-      );
-    }
-
     const updatedOffer = await this.rentOfferService.updateById(offerId, updateData);
-
-    if (!updatedOffer) {
-      throw new HttpError(
-        StatusCodes.NOT_FOUND,
-        `Offer with id ${offerId} not found.`,
-        'OfferController'
-      );
-    }
 
     this.ok(res, fillRDO(RentOfferFullRDO, updatedOffer));
   }
@@ -221,16 +208,7 @@ export default class RentOfferController extends Controller {
 
   public async getComments({params}: Request<core.ParamsDictionary | ParamsGetOffer>, res: Response): Promise<void> {
 
-    if (!await this.rentOfferService.exists(params.offerId)) {
-      throw new HttpError(
-        StatusCodes.CONFLICT,
-        `Offer with such id ${params.offerId} not exists.`,
-        'OfferController'
-      );
-    }
-
     const comments = await this.commentService.findByOfferId(params.offerId, MAX_COMMENTS_COUNT);
     this.ok(res, fillRDO(CommentRDO, comments));
-
   }
 }

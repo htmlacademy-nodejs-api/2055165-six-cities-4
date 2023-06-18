@@ -64,4 +64,8 @@ export default class UserService implements UserServiceInterface {
     return this.userModel.findByIdAndUpdate(userId, {[`${status ? '$addToSet' : '$pull'}`]: { favorites: offerId }}, {new: true}).exec();
   }
 
+  public async exists(userId: string): Promise<boolean> {
+    return (await this.userModel.exists({_id: userId})) !== null;
+  }
+
 }
