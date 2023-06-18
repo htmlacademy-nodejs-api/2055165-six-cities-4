@@ -42,3 +42,18 @@ PUT http://localhost:2000/users/64760b2a6a803a09ab8e9a34/favorites/6487271d52b1f
 GET http://localhost:2000/users/64760b2a6a803a09ab8e9a34/favorites/ HTTP/1.1
 
 ###
+
+## Загрузка аватара пользователем
+
+PUT  http://localhost:2000/users/64760b2a6a803a09ab8e9a2f/avatar HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="avatar"; filename="nason.jpg"
+Content-Type: image/jpeg image/png
+
+< Q:/123.txt
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+
+
