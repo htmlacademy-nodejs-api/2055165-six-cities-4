@@ -19,6 +19,7 @@ import { ValidateObjectIdMiddleware } from '../../core/middlewares/validate-id.m
 import { ValidateDTOMiddleware } from '../../core/middlewares/validate-dto.middleware.js';
 import AuthUserDTO from './dto/auth-user.dto.js';
 import { DocumentExistsMiddleware } from '../../core/middlewares/document-exists.middleware.js';
+import { UploadFileMiddleware } from '../../core/middlewares/upload-file.middleware.js';
 
 @injectable()
 export default class UserController extends Controller {
@@ -52,7 +53,8 @@ export default class UserController extends Controller {
       handler: this.loadAvatar,
       middlewares: [
         new ValidateObjectIdMiddleware('userId'),
-        new DocumentExistsMiddleware(this.userService, 'User', 'userId')
+        new DocumentExistsMiddleware(this.userService, 'User', 'userId'),
+        new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY'), 'avatar')
       ]
     });
     this.addRoute({
@@ -138,8 +140,10 @@ export default class UserController extends Controller {
     // this.ok(res, userResponse);
   }
 
-  public async loadAvatar(_req: Request, _res: Response): Promise<void> {
-    throw new Error('Ещё не реализован');
+  public async loadAvatar(req: Request, res: Response): Promise<void> {
+    this.created(res, {
+      filepath: req.file?.path
+    });
   }
 
   public async logout(req: Request, _res: Response): Promise<void> {
