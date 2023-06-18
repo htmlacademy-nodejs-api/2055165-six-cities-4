@@ -64,7 +64,7 @@ export default class RestApplication {
     this.expressApplication.use(express.json());
     this.expressApplication.use(
       '/upload',
-      express.static(this.config.get('UPLOAD_DIRECTORY'), {extensions: ['jpeg', 'png']}));
+      express.static(this.config.get('UPLOAD_DIRECTORY')));
     this.logger.info('Global middleware initialization completed');
   }
 
