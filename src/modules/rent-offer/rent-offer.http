@@ -1,11 +1,11 @@
 #Предложения
 ## Создание нового предложения
 POST http://localhost:2000/rent-offers HTTP/1.1
-X-token: 'somesupertoken'
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImctZWFzeUBiZWVub24uY29tIiwiaWQiOiI2NDc2MGIyYTZhODAzYTA5YWI4ZTlhMmYiLCJpYXQiOjE2ODcyNjE5NTcsImV4cCI6MTY4NzM0ODM1N30.1HClWaMKeh2u07Ts62-DjvsGwtYdFRG83moghpBfOjg
 Content-Type: application/json
 
 {
-  "title": "validation test",
+  "title": "validation test for delete",
   "description": "long description for validation testoffer",
   "city": "Amsterdam",
   "previewImage": "preview.jpg",
@@ -26,7 +26,6 @@ Content-Type: application/json
         "Washer",
         "Laptop"
   ],
-  "advertiserId": "64760b2a6a803a09ab8e9a2f",
   "latitude": 50.837557,
   "longitude": 4.351697
 }
@@ -34,7 +33,7 @@ Content-Type: application/json
 ###
 
 ## Получить список предложений
-GET http://localhost:2000/rent-offers HTTP/1.1
+GET http://localhost:2000/rent-offers?count=4 HTTP/1.1
 
 ###
 
@@ -44,7 +43,9 @@ GET http://localhost:2000/rent-offers/premium?city=Paris HTTP/1.1
 ###
 
 ## Получить всю информацию о предложении
-GET http://localhost:2000/rent-offers/6487275952b1fd03b2bbcca6 HTTP/1.1
+GET http://localhost:2000/rent-offers/64760b2a6a803a09ab8e9a36 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImctZWFzeUBiZWVub24uY29tIiwiaWQiOiI2NDc2MGIyYTZhODAzYTA5YWI4ZTlhMmYiLCJpYXQiOjE2ODcyNjE5NTcsImV4cCI6MTY4NzM0ODM1N30.1HClWaMKeh2u07Ts62-DjvsGwtYdFRG83moghpBfOjg
+
 
 ###
 
@@ -64,8 +65,9 @@ Content-Type: application/json
 ###
 
 ## Удалить предложение
-DELETE http://localhost:2000/rent-offers/64760b2a6a803a09ab8e9a31 HTTP/1.1
-X-token: 'somesupertoken'
+DELETE http://localhost:2000/rent-offers/64760b2a6a803a09ab8e9a36 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImctZWFzeUBiZWVub24uY29tIiwiaWQiOiI2NDc2MGIyYTZhODAzYTA5YWI4ZTlhMmYiLCJpYXQiOjE2ODcyNjE5NTcsImV4cCI6MTY4NzM0ODM1N30.1HClWaMKeh2u07Ts62-DjvsGwtYdFRG83moghpBfOjg
+
 
 ###
 

@@ -24,6 +24,7 @@ import { DocumentExistsMiddleware } from '../../core/middlewares/document-exists
 import { ResBody } from '../../types/request.type.js';
 import { PrivateRouteMiddleware } from '../../core/middlewares/private-route.middleware.js';
 import { CityName } from '../../types/city.type.js';
+import { DocumentModifyMiddleware } from '../../core/middlewares/document-modify.middleware.js';
 
 
 type ParamsOfferDetails = {
@@ -68,8 +69,9 @@ export default class RentOfferController extends Controller {
       middlewares: [
         new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
+        new ValidateDTOMiddleware(UpdateRentOfferDTO),
         new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
-        new ValidateDTOMiddleware(UpdateRentOfferDTO)
+        new DocumentModifyMiddleware(this.rentOfferService, 'Rent-offer', 'offerId')
       ]
     });
     this.addRoute({
@@ -79,7 +81,8 @@ export default class RentOfferController extends Controller {
       middlewares: [
         new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
-        new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId')
+        new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
+        new DocumentModifyMiddleware(this.rentOfferService, 'Rent-offer', 'offerId')
       ]
     });
     this.addRoute({
@@ -102,7 +105,7 @@ export default class RentOfferController extends Controller {
 
   public async getOffers({query: {count}}: Request<ParamsDictionary>, res: Response): Promise<void> {
 
-    const offersCount = count ? Number.parseInt(count.toString(), 10) : DEFAULT_OFFERS_COUNT;
+    const offersCount = (count && !Number.isNaN(Number.parseInt(count.toString(), 10))) ? Number.parseInt(count.toString(), 10) : DEFAULT_OFFERS_COUNT;
     const userId = res.locals.user ? res.locals.user.id : '';
     const offers = await this.rentOfferService.find(offersCount, userId);
 
@@ -142,8 +145,9 @@ export default class RentOfferController extends Controller {
 
   public async deleteOffer({params: {offerId}}: Request<ParamsOfferDetails>, res: Response): Promise<void> {
 
+    const offer = await this.rentOfferService.deleteById(offerId);
     await this.commentService.deleteByOfferId(offerId);
-    this.noContent(res, {message: 'Offer was deleted successfully.'});
+    this.noContent(res, offer);
   }
 
   public async getComments({params: {offerId}}: Request<ParamsOfferDetails>, res: Response): Promise<void> {
