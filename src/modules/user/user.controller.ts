@@ -7,7 +7,7 @@ import { AppComponent } from '../../types/app-component.type.js';
 import { HttpMethod } from '../../types/http-method.type.js';
 import { UserServiceInterface } from './user-service.interface.js';
 import { StatusCodes } from 'http-status-codes';
-import { createSHA256, fillRDO } from '../../core/utils/common.js';
+import { createJWT, fillRDO } from '../../core/utils/common.js';
 import { ConfigInterface } from '../../core/config/config.interface.js';
 import { RestSchema } from '../../core/config/rest.schema.js';
 import NewUserRDO from './rdo/new-user.rdo.js';
@@ -20,6 +20,9 @@ import { ValidateDTOMiddleware } from '../../core/middlewares/validate-dto.middl
 import AuthUserDTO from './dto/auth-user.dto.js';
 import { DocumentExistsMiddleware } from '../../core/middlewares/document-exists.middleware.js';
 import { UploadFileMiddleware } from '../../core/middlewares/upload-file.middleware.js';
+import { ReqBody, ResBody } from '../../types/request.type.js';
+import { JWT_ALGORITHM } from './user.constants.js';
+import AuthUserRDO from './rdo/auth-user.rdo.js';
 
 @injectable()
 export default class UserController extends Controller {
@@ -80,9 +83,7 @@ export default class UserController extends Controller {
 
   }
 
-  public async register(req: Request<Record<string, unknown>, Record<string, unknown>, CreateUserDTO>, res: Response): Promise<void> {
-    const {body: registerData} = req;
-
+  public async register({body: registerData}: Request<ReqBody, ResBody, CreateUserDTO>, res: Response): Promise<void> {
     const existUser = await this.userService.findByEmail(registerData.email);
 
     if (existUser) {
@@ -113,31 +114,28 @@ export default class UserController extends Controller {
     }
   }
 
-  public async requestAuth(req: Request, _res: Response): Promise<void> {
-    const {body: {email, password}} = req;
-    const existUser = await this.userService.findByEmail(email);
+  public async requestAuth({body: authData}: Request<ReqBody, ResBody, AuthUserDTO>, res: Response): Promise<void> {
+
+    const existUser = await this.userService.verifyUser(authData, this.configService.get('SALT'));
 
     if (!existUser) {
       throw new HttpError(
-        StatusCodes.CONFLICT,
-        `User with email ${email} doesn't exist.`,
-        'UserController'
-      );
-    }
-
-    const encryptPassword = createSHA256(password, this.configService.get('SALT'));
-
-    if (encryptPassword !== existUser.getPassword()) {
-      throw new HttpError(
         StatusCodes.UNAUTHORIZED,
-        'Wrong password.',
+        'Wrong authentication data. Check your login and password.',
         'UserController'
       );
     }
 
-    // необходима доработка генерации токена и хранения в дб
-    // const userResponse = fillRDO(AuthUserRDO, {...existUser.toObject(), id: existUser._id, authToken: 'token'});
-    // this.ok(res, userResponse);
+    const token = await createJWT(
+      JWT_ALGORITHM,
+      this.configService.get('JWT_SECRET'),
+      {
+        email: existUser.email,
+        id: existUser.id
+      }
+    );
+
+    this.ok(res, fillRDO(AuthUserRDO, {token}));
   }
 
   public async loadAvatar(req: Request, res: Response): Promise<void> {
@@ -146,18 +144,8 @@ export default class UserController extends Controller {
     });
   }
 
-  public async logout(req: Request, _res: Response): Promise<void> {
-    const reqToken = req.get('X-token');
-    /*
-    Будет доставаться токен из req Header, и проверяться с токеном в базе, будет добавлено позже
-    */
-    if (!reqToken) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        'Request Error - Bad token.',
-        'UserController'
-      );
-    }
+  public async logout(_req: Request, _res: Response): Promise<void> {
+    throw new HttpError(StatusCodes.NOT_IMPLEMENTED, 'not implemented');
   }
 
   public async updateFavoriteStatus(req: Request, res: Response): Promise<void> {

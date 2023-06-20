@@ -1,5 +1,6 @@
 import * as crypto from 'node:crypto';
 
+import * as jose from 'jose';
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 
 
@@ -18,5 +19,13 @@ export function fillRDO<T, V>(someRDO: ClassConstructor<T>, plainObject: V) {
 
 export function createErrorObject(message: string) {
   return { error: message };
+}
+
+export async function createJWT(algorithm: string, jwtSecret: string, payload: jose.JWTPayload): Promise<string> {
+  return new jose.SignJWT({ ...payload })
+    .setProtectedHeader({ alg: algorithm })
+    .setIssuedAt()
+    .setExpirationTime('1d')
+    .sign(crypto.createSecretKey(jwtSecret, 'utf-8'));
 }
 
