@@ -9,6 +9,7 @@ import { AppComponent } from '../types/app-component.type.js';
 import { getMongoURI } from '../core/utils/db-helper.js';
 import { ControllerInterface } from '../core/controller/controller.interface.js';
 import { ExceptionFilterInterface } from '../core/exception-filters/exception-filter.interface.js';
+import { AuthenticateMiddleware } from '../core/middlewares/authenticate.middleware.js';
 
 @injectable()
 export default class RestApplication {
@@ -53,18 +54,23 @@ export default class RestApplication {
 
   private async _initRoutes() {
     this.logger.info('Controller initialization…');
+
     this.expressApplication.use('/users', this.userController.router);
     this.expressApplication.use('/rent-offers', this.rentOfferController.router);
     this.expressApplication.use('/comments', this.commentController.router);
+
     this.logger.info('Controller initialization completed');
   }
 
   private async _initMiddleware() {
     this.logger.info('Global middleware initialization…');
+
     this.expressApplication.use(express.json());
-    this.expressApplication.use(
-      '/upload',
-      express.static(this.config.get('UPLOAD_DIRECTORY')));
+    this.expressApplication.use('/upload', express.static(this.config.get('UPLOAD_DIRECTORY')));
+
+    const authenticateMiddleware = new AuthenticateMiddleware(this.config.get('JWT_SECRET'));
+    this.expressApplication.use(authenticateMiddleware.execute.bind(authenticateMiddleware));
+
     this.logger.info('Global middleware initialization completed');
   }
 

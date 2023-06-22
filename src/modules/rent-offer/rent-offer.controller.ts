@@ -1,8 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-
-import * as core from 'express-serve-static-core';
+import {ParamsDictionary } from 'express-serve-static-core';
 
 import { Controller } from '../../core/controller/controller.abstract.js';
 import { LoggerInterface } from '../../core/logger/logger.interface.js';
@@ -22,11 +21,15 @@ import { ValidateDTOMiddleware } from '../../core/middlewares/validate-dto.middl
 import { MAX_COMMENTS_COUNT } from '../comment/comment.constants.js';
 import UpdateRentOfferDTO from './dto/update-rent-offer.dto.js';
 import { DocumentExistsMiddleware } from '../../core/middlewares/document-exists.middleware.js';
+import { ResBody } from '../../types/request.type.js';
+import { PrivateRouteMiddleware } from '../../core/middlewares/private-route.middleware.js';
+import { CityName } from '../../types/city.type.js';
+import { DocumentModifyMiddleware } from '../../core/middlewares/document-modify.middleware.js';
 
 
-type ParamsGetOffer = {
+type ParamsOfferDetails = {
   offerId: string;
-}
+} | ParamsDictionary;
 
 @injectable()
 export default class RentOfferController extends Controller {
@@ -43,7 +46,10 @@ export default class RentOfferController extends Controller {
       path: '/',
       method: HttpMethod.Post,
       handler: this.createOffer,
-      middlewares: [new ValidateDTOMiddleware(CreateRentOfferDTO)]
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateDTOMiddleware(CreateRentOfferDTO)
+      ]
     });
     this.addRoute({path: '/', method: HttpMethod.Get, handler: this.getOffers});
     this.addRoute({path: '/premium', method: HttpMethod.Get, handler: this.getPremiumOffers});
@@ -61,9 +67,11 @@ export default class RentOfferController extends Controller {
       method: HttpMethod.Patch,
       handler: this.updateOffer,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
+        new ValidateDTOMiddleware(UpdateRentOfferDTO),
         new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
-        new ValidateDTOMiddleware(UpdateRentOfferDTO)
+        new DocumentModifyMiddleware(this.rentOfferService, 'Rent-offer', 'offerId')
       ]
     });
     this.addRoute({
@@ -71,8 +79,10 @@ export default class RentOfferController extends Controller {
       method: HttpMethod.Delete,
       handler:this.deleteOffer,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
-        new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId')
+        new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
+        new DocumentModifyMiddleware(this.rentOfferService, 'Rent-offer', 'offerId')
       ]
     });
     this.addRoute({
@@ -86,129 +96,63 @@ export default class RentOfferController extends Controller {
     });
   }
 
-  public async createOffer(req: Request<Record<string, unknown>, Record<string, unknown>, CreateRentOfferDTO>, res: Response): Promise<void> {
-    /*
-    Будет доставаться токен из req Header, и проверяться с токеном в базе, будет добавлено позже
-    */
-    const reqToken = req.get('X-token');
+  public async createOffer({body: offerData}: Request<ParamsDictionary, ResBody, CreateRentOfferDTO>, res: Response): Promise<void> {
+    const advertiser = res.locals.user;
 
-    if (!reqToken) {
-      throw new HttpError(
-        StatusCodes.UNAUTHORIZED,
-        'Access denied. Only for authorized users.',
-        'RestOfferController'
-      );
-    }
-
-    /*
-    Валидация полей будет добавлена позже.
-
-    Поиск юзера по токену для привязки его к новому офферу
-    */
-    const {body: requestOffer} = req;
-
-    const newOffer = await this.rentOfferService.create(requestOffer);
+    const newOffer = await this.rentOfferService.create({...offerData, advertiserId: advertiser.id});
     this.created(res, fillRDO(RentOfferFullRDO, newOffer));
   }
 
-  public async getOffers(req: Request, res: Response): Promise<void> {
+  public async getOffers({query: {count}}: Request<ParamsDictionary>, res: Response): Promise<void> {
 
-    const {params: {count}} = req;
-    const offersCount = count ? Number.parseInt(count, 10) : DEFAULT_OFFERS_COUNT;
-    /* JWT токен будет добавлен позже id в методе для теста*/
-
-    const offers = await this.rentOfferService.find(offersCount, '64760b2a6a803a09ab8e9a34');
+    const offersCount = (count && !Number.isNaN(Number.parseInt(count.toString(), 10))) ? Number.parseInt(count.toString(), 10) : DEFAULT_OFFERS_COUNT;
+    const userId = res.locals.user ? res.locals.user.id : '';
+    const offers = await this.rentOfferService.find(offersCount, userId);
 
     const offersResponse = offers?.map((offer) => fillRDO(RentOfferBasicRDO, offer));
     this.ok(res, offersResponse);
   }
 
-  public async getPremiumOffers(req: Request, res: Response): Promise<void> {
-    const {query: {city}} = req;
+  public async getPremiumOffers({query: {city}}: Request, res: Response): Promise<void> {
 
-    if (!city) {
+    if (!city || !Object.values(CityName).map((cityName) => cityName.toString()).includes(city.toString())) {
       throw new HttpError(
         StatusCodes.BAD_REQUEST,
-        'Incorrect path Error. Check your request',
-        'RestOfferController'
+        `Incorrect path Error. Can't get offer from ${city}`,
+        'RentOfferController'
       );
     }
 
-    /* JWT токен будет добавлен позже! id в методе для теста*/
-
-    const premiumOffers = await this.rentOfferService.findPremium(city.toString(), MAX_PREMIUM_OFFERS_COUNT, '64760b2a6a803a09ab8e9a34');
+    const userId = res.locals.user ? res.locals.user.id : '';
+    const premiumOffers = await this.rentOfferService.findPremium(city.toString(), MAX_PREMIUM_OFFERS_COUNT, userId);
 
     const offersResponse = premiumOffers?.map((offer) => fillRDO(RentOfferBasicRDO, offer));
     this.ok(res, offersResponse);
   }
 
-  public async getOfferDetails({params}: Request<core.ParamsDictionary| ParamsGetOffer>, res: Response): Promise<void> {
-    const {offerId} = params;
+  public async getOfferDetails({params: {offerId}}: Request<ParamsOfferDetails>, res: Response): Promise<void> {
 
-    /* JWT токен будет добавлен позже id в методе для теста*/
-
-    const offer = await this.rentOfferService.findById(offerId, '64760b2a6a803a09ab8e9a34');
+    const userId = res.locals.user ? res.locals.user.id : '';
+    const offer = await this.rentOfferService.findById(offerId, userId);
     this.ok(res, fillRDO(RentOfferFullRDO, offer));
   }
 
-  public async updateOffer(req: Request<core.ParamsDictionary| ParamsGetOffer, Record<string, unknown>, Record<string, unknown>, UpdateRentOfferDTO>, res: Response): Promise<void> {
-
-    const reqToken = req.get('X-token');
-
-    if (!reqToken) {
-      throw new HttpError(
-        StatusCodes.UNAUTHORIZED,
-        'Access denied. Only for authorized users.',
-        'RestOfferController'
-      );
-    }
-
-    const {params: {offerId}, body: updateData} = req;
+  public async updateOffer({body: updateData, params: {offerId}}: Request<ParamsOfferDetails, ResBody, UpdateRentOfferDTO>, res: Response): Promise<void> {
 
     const updatedOffer = await this.rentOfferService.updateById(offerId, updateData);
-
     this.ok(res, fillRDO(RentOfferFullRDO, updatedOffer));
   }
 
-  public async deleteOffer(req: Request, res: Response): Promise<void> {
-
-    const reqToken = req.get('X-token');
-
-    if (!reqToken) {
-      throw new HttpError(
-        StatusCodes.UNAUTHORIZED,
-        'Access denied. Only for authorized users.',
-        'RestOfferController'
-      );
-    }
-
-    const {params: {offerId}} = req;
-
-    if (!offerId) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        'Incorrect path Error. Check your request',
-        'RestOfferController'
-      );
-    }
+  public async deleteOffer({params: {offerId}}: Request<ParamsOfferDetails>, res: Response): Promise<void> {
 
     const offer = await this.rentOfferService.deleteById(offerId);
-
-    if (!offer) {
-      throw new HttpError(
-        StatusCodes.CONFLICT,
-        `Offer with such id ${offerId} not exists.`,
-        'OfferController'
-      );
-    }
     await this.commentService.deleteByOfferId(offerId);
-
-    this.noContent(res, {message: 'Offer was deleted successfully.'});
+    this.noContent(res, offer);
   }
 
-  public async getComments({params}: Request<core.ParamsDictionary | ParamsGetOffer>, res: Response): Promise<void> {
+  public async getComments({params: {offerId}}: Request<ParamsOfferDetails>, res: Response): Promise<void> {
 
-    const comments = await this.commentService.findByOfferId(params.offerId, MAX_COMMENTS_COUNT);
+    const comments = await this.commentService.findByOfferId(offerId, MAX_COMMENTS_COUNT);
     this.ok(res, fillRDO(CommentRDO, comments));
   }
 }

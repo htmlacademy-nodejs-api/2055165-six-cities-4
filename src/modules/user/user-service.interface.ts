@@ -4,9 +4,11 @@ import CreateUserDTO from './dto/create-user.dto.js';
 import { UserEntity } from './user.entity.js';
 import { RentOfferEntity } from '../rent-offer/rent-offer.entity.js';
 import { DocumentExistsInterface } from '../../types/document-exists.interface.js';
+import AuthUserDTO from './dto/auth-user.dto.js';
+import { DocumentModifyInterface } from '../../types/document-modify.interface.js';
 
-export interface UserServiceInterface extends DocumentExistsInterface {
-  create(DTO: CreateUserDTO, salt: string): Promise<DocumentType<UserEntity>>;
+export interface UserServiceInterface extends DocumentExistsInterface, DocumentModifyInterface {
+  create(dto: CreateUserDTO, salt: string): Promise<DocumentType<UserEntity>>;
 
   findByEmail(email: string): Promise<DocumentType<UserEntity> | null>;
 
@@ -18,5 +20,9 @@ export interface UserServiceInterface extends DocumentExistsInterface {
 
   changeFavoriteStatus(userId: string, offerId: string, status: boolean): Promise<DocumentType<UserEntity> | null>;
 
-  exists(userId: string): Promise<boolean>
+  exists(userId: string): Promise<boolean>;
+
+  verifyUser(dto: AuthUserDTO, salt: string): Promise<DocumentType<UserEntity> | null>;
+
+  canModify(authUserId: string, userId: string): Promise<boolean>
 }

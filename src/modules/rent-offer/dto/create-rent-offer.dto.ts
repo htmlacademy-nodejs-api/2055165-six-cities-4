@@ -1,4 +1,4 @@
-import {ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsLatitude, IsLongitude, IsMimeType, IsMongoId, IsOptional, Max, MaxLength, Min, MinLength } from 'class-validator';
+import {ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsLatitude, IsLongitude, IsOptional, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 import { Goods } from '../../../types/goods.type.js';
 import { OfferType } from '../../../types/offer-type.type.js';
@@ -20,13 +20,13 @@ export default class CreateRentOfferDTO {
   @IsEnum(CityName, {message: `city must be only one of the following: ${Object.values(CityName).join(', ')}`})
   public city!: CityName;
 
-  @IsMimeType({message: 'preview must be a valid image file'})
+  // @IsMimeType({message: 'preview must be a valid image file'})
   public previewImage!: string;
 
-  @IsArray({message: '"images" field must be an array'})
-  @ArrayMinSize(6, {message: '"images" field must contain 6 image files'})
-  @ArrayMaxSize(6, {message: '"images" field must contain 6 image files'})
-  @IsMimeType({each: true, message: 'must be a valid image file'})
+  // @IsArray({message: '"images" field must be an array'})
+  // @ArrayMinSize(6, {message: '"images" field must contain 6 image files'})
+  // @ArrayMaxSize(6, {message: '"images" field must contain 6 image files'})
+  // @IsMimeType({each: true, message: 'must be a valid image file'})
   public images!: string[];
 
   @IsBoolean({message: '"isPremium" field must be a boolean'})
@@ -56,7 +56,6 @@ export default class CreateRentOfferDTO {
   @ArrayMinSize(1)
   public goods!: Goods[];
 
-  @IsMongoId({message: 'advertiserId field must be a valid id'})
   public advertiserId!: string;
 
   @IsLatitude({message: 'latitude must have a correct lat. coordinate format'})

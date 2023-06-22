@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import mime from 'mime';
 import multer, { diskStorage } from 'multer';
 import { nanoid } from 'nanoid';
 import { StatusCodes } from 'http-status-codes';
@@ -15,13 +14,15 @@ export class UploadFileMiddleware implements MiddlewareInterface {
 
   public async execute(req: Request, res: Response, next: NextFunction): Promise<void> {
 
-    if (!req.file?.mimetype.endsWith('jpeg') || !req.file?.mimetype.endsWith('png')){
-      throw new HttpError(StatusCodes.BAD_REQUEST, 'incorrect file extension', 'File validation');
-    }
+    const allowedExtensions = ['jpg', 'jpeg', 'png'];
+
     const storage = diskStorage({
       destination: this.uploadDirectory,
       filename: (_req, file, callback) => {
-        const extension = mime.extension(file.mimetype);
+        const extension = file.originalname.split('.').pop();
+        if (!extension || !allowedExtensions.includes(extension)) {
+          return next(new HttpError(StatusCodes.BAD_REQUEST, 'incorrect file extension', 'File validation'));
+        }
         const fileId = nanoid();
         callback(null, `${fileId}.${extension}`);
       }
