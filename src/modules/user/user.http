@@ -26,7 +26,7 @@ Content-Type: application/json
 
 ## Запрос статуса авторизации пользователя
 GET  http://localhost:2000/users/auth HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTIxZTgxNGQwNTAzMWI5NGIzOGQ5ZCIsImlhdCI6MTY4NzI5NzY3NywiZXhwIjoxNjg3Mzg0MDc3fQ.VBxeVt60JYxo8E7bS-IXHRxKdmRFIf7ongM2QKuQPwY
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTIxZTgxNGQwNTAzMWI5NGIzOGQ5ZCIsImlhdCI6MTY4NzMwMDEzNCwiZXhwIjoxNjg3MzAwMTk0fQ.VI5UILsRuvw50ooM_ENQ6TUZmkTlK23dOr2wKaD6s7o
 ###
 
 ## Завершения сеанса пользователя

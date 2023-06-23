@@ -1,4 +1,6 @@
 import { inject } from 'inversify';
+import { Request, Response } from 'express';
+import {ParamsDictionary } from 'express-serve-static-core';
 
 import { Controller } from '../../core/controller/controller.abstract.js';
 import { HttpMethod } from '../../types/http-method.type.js';
@@ -6,14 +8,13 @@ import { CommentServiceInterface } from './comment-service.interface.js';
 import { AppComponent } from '../../types/app-component.type.js';
 import { RentOfferServiceInterface } from '../rent-offer/rent-offer-service.interface.js';
 import { LoggerInterface } from '../../core/logger/logger.interface.js';
-import { Request, Response } from 'express';
 import CreateCommentDTO from './dto/create-comment.dto.js';
 import HttpError from '../../core/errors/http-error.js';
 import { StatusCodes } from 'http-status-codes';
 import { fillRDO } from '../../core/utils/common.js';
 import CommentRDO from './rdo/comment.rdo.js';
 import { ValidateDTOMiddleware } from '../../core/middlewares/validate-dto.middleware.js';
-import { ReqBody, ResBody } from '../../types/request.type.js';
+import { ResBody } from '../../types/default-response.type.js';
 import { PrivateRouteMiddleware } from '../../core/middlewares/private-route.middleware.js';
 
 
@@ -38,11 +39,11 @@ export default class CommentController extends Controller {
     });
   }
 
-  public async create({body: commentData}: Request<ReqBody, ResBody, CreateCommentDTO>, res: Response): Promise<void> {
+  public async create({body: commentData}: Request<ParamsDictionary, ResBody, CreateCommentDTO>, res: Response): Promise<void> {
 
     if (!await this.offerService.exists(commentData.offerId)) {
       throw new HttpError(
-        StatusCodes.CONFLICT,
+        StatusCodes.BAD_REQUEST,
         `Offer with such id ${commentData.offerId} not exists.`,
         'CommentController'
       );

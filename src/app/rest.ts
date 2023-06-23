@@ -22,7 +22,10 @@ export default class RestApplication {
     @inject(AppComponent.UserController) private readonly userController: ControllerInterface,
     @inject(AppComponent.RentOfferController) private readonly rentOfferController: ControllerInterface,
     @inject(AppComponent.CommentController) private readonly commentController: ControllerInterface,
-    @inject(AppComponent.ExceptionFilterInterface) private readonly exceptionFilter: ExceptionFilterInterface
+    @inject(AppComponent.HttpErrorExceptionFilter) private readonly httpErrorExceptionFilter: ExceptionFilterInterface,
+    @inject(AppComponent.DefaultExceptionFilter) private readonly defaultExceptionFilter: ExceptionFilterInterface,
+    @inject(AppComponent.ValidationExceptionFilter) private readonly validationExceptionFilter: ExceptionFilterInterface,
+    @inject(AppComponent.AuthorizationExceptionFilter) private readonly authorizationExceptionFilter: ExceptionFilterInterface,
   ) {
     this.expressApplication = express();
   }
@@ -76,7 +79,12 @@ export default class RestApplication {
 
   private async _initExceptionFilters() {
     this.logger.info('Exception filters initialization');
-    this.expressApplication.use(this.exceptionFilter.catch.bind(this.exceptionFilter));
+
+    this.expressApplication.use(this.validationExceptionFilter.catch.bind(this.validationExceptionFilter));
+    this.expressApplication.use(this.httpErrorExceptionFilter.catch.bind(this.httpErrorExceptionFilter));
+    this.expressApplication.use(this.defaultExceptionFilter.catch.bind(this.defaultExceptionFilter));
+    this.expressApplication.use(this.authorizationExceptionFilter.catch.bind(this.authorizationExceptionFilter));
+
     this.logger.info('Exception filters completed');
   }
 
@@ -88,6 +96,5 @@ export default class RestApplication {
     await this._initRoutes();
     await this._initExceptionFilters();
     await this._initServer();
-
   }
 }
