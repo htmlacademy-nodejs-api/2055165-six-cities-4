@@ -6,6 +6,8 @@ import { ValidationError } from 'class-validator';
 
 import { ValidationErrorField } from '../../types/validation-error-field.type.js';
 import { ErrorType } from '../../types/error-type.type.js';
+import { DEFAULT_STATIC_IMAGES } from '../../app/rest.constants.js';
+import { ResBody } from '../../types/default-response.type.js';
 
 
 export function getErrorMessage(error: unknown): string {
@@ -47,3 +49,29 @@ export function transformErrors(errors: ValidationError[]): ValidationErrorField
   ));
 }
 
+export function getFullServerPath(host: string, port: number) {
+  return `http://${host}:${port}`;
+}
+
+function isObject(value: unknown) {
+  return typeof value === 'object' && value !== null;
+}
+
+export function transformProperty(property: string, srcObject: ResBody, transformFn: (object: ResBody) => void) {
+  return Object.keys(srcObject).forEach((key) => {
+    if (key === property) {
+      transformFn(srcObject);
+    } else if (isObject(srcObject[key])) {
+      transformProperty(property, srcObject[key] as ResBody, transformFn);
+    }
+  });
+}
+
+export function transformData(properties: string[], staticPath: string, uploadPath: string, srcObject: ResBody) {
+  return properties.forEach((property) => {
+    transformProperty(property, srcObject, (target: ResBody) => {
+      const rootPath = DEFAULT_STATIC_IMAGES.includes(target[property] as string) ? staticPath : uploadPath;
+      target[property] = `${rootPath}/${target[property]}`;
+    });
+  });
+}

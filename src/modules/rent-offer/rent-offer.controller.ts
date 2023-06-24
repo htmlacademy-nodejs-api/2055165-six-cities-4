@@ -25,6 +25,10 @@ import { ResBody } from '../../types/default-response.type.js';
 import { PrivateRouteMiddleware } from '../../core/middlewares/private-route.middleware.js';
 import { CityName } from '../../types/city.type.js';
 import { DocumentModifyMiddleware } from '../../core/middlewares/document-modify.middleware.js';
+import { ConfigInterface } from '../../core/config/config.interface.js';
+import { RestSchema } from '../../core/config/rest.schema.js';
+import { UploadFileMiddleware } from '../../core/middlewares/upload-file.middleware.js';
+import PreviewImageRDO from './rdo/preview-image.rdo.js';
 
 
 type ParamsOfferDetails = {
@@ -34,11 +38,12 @@ type ParamsOfferDetails = {
 @injectable()
 export default class RentOfferController extends Controller {
   constructor(
-  @inject(AppComponent.LoggerInterface) logger: LoggerInterface,
+  @inject(AppComponent.LoggerInterface) protected readonly logger: LoggerInterface,
   @inject(AppComponent.RentOfferServiceInterface) private readonly rentOfferService: RentOfferService,
-  @inject(AppComponent.CommentServiceInterface) private readonly commentService: CommentService
+  @inject(AppComponent.CommentServiceInterface) private readonly commentService: CommentService,
+  @inject(AppComponent.ConfigInterface) protected readonly configService: ConfigInterface<RestSchema>
   ) {
-    super(logger);
+    super(logger, configService);
 
     this.logger.info('Register routes for Rent Offer Controller…');
 
@@ -92,6 +97,18 @@ export default class RentOfferController extends Controller {
       middlewares: [
         new ValidateObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId')
+      ]
+    });
+    this.addRoute({
+      path: '/:offerId/preview',
+      method: HttpMethod.Post,
+      handler: this.uploadPreviewImage,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
+        new DocumentModifyMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
+        new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY_PATH'), 'preview-image'),
       ]
     });
   }
@@ -154,5 +171,13 @@ export default class RentOfferController extends Controller {
 
     const comments = await this.commentService.findByOfferId(offerId, MAX_COMMENTS_COUNT);
     this.ok(res, fillRDO(CommentRDO, comments));
+  }
+
+  public async uploadPreviewImage(req: Request<ParamsOfferDetails>, res: Response): Promise<void> {
+    const {offerId} = req.params;
+    const updateDTO = { previewImage: req.file?.filename };
+
+    await this.rentOfferService.updateById(offerId, updateDTO);
+    this.created(res, fillRDO(PreviewImageRDO, {updateDTO}));
   }
 }

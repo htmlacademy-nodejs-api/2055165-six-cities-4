@@ -1,14 +1,13 @@
 #Предложения
 ## Создание нового предложения
 POST http://localhost:2000/rent-offers HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImctZWFzeUBiZWVub24uY29tIiwiaWQiOiI2NDc2MGIyYTZhODAzYTA5YWI4ZTlhMmYiLCJpYXQiOjE2ODcyNjE5NTcsImV4cCI6MTY4NzM0ODM1N30.1HClWaMKeh2u07Ts62-DjvsGwtYdFRG83moghpBfOjg
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTIxZTgxNGQwNTAzMWI5NGIzOGQ5ZCIsImlhdCI6MTY4NzYzNjg0MywiZXhwIjoxNjg3NzIzMjQzfQ.58iVuwbVZAXdwfo6m_aW1WV5jivW8R6tvNBPVjcWL2A
 Content-Type: application/json
 
 {
-  "title": "validation test for delete",
+  "title": "validation test without preview",
   "description": "long description for validation testoffer",
   "city": "Amsterdam",
-  "previewImage": "preview.jpg",
   "images": [
         "offer-image-7.jpg",
         "offer-image-6.jpg",
@@ -74,4 +73,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImctZWFzeUBiZWVub24uY29tI
 ##Получить список комментариев к офферу
 GET http://localhost:2000/rent-offers/6487275352b1fd03b2bbcca0/comments HTTP/1.1
 
+###
+
+## Загрузка preview
+POST  http://localhost:2000/rent-offers/64974b9cbc8fdadc5a227253/preview HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTIxZTgxNGQwNTAzMWI5NGIzOGQ5ZCIsImlhdCI6MTY4NzYzNjg0MywiZXhwIjoxNjg3NzIzMjQzfQ.58iVuwbVZAXdwfo6m_aW1WV5jivW8R6tvNBPVjcWL2A
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="preview-image"; filename="preview.png"
+Content-Type: image/png
+
+< Q:/preview.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
 ###

@@ -10,6 +10,7 @@ import { getMongoURI } from '../core/utils/db-helper.js';
 import { ControllerInterface } from '../core/controller/controller.interface.js';
 import { ExceptionFilterInterface } from '../core/exception-filters/exception-filter.interface.js';
 import { AuthenticateMiddleware } from '../core/middlewares/authenticate.middleware.js';
+import { getFullServerPath } from '../core/utils/common.js';
 
 @injectable()
 export default class RestApplication {
@@ -49,10 +50,10 @@ export default class RestApplication {
   private async _initServer() {
     this.logger.info('Try to init server…');
 
-    const port = this.config.get('EXPRESS_PORT');
+    const port = this.config.get('SERVICE_PORT');
     this.expressApplication.listen(port);
 
-    this.logger.info(`🚀Server started on http://localhost:${port}`);
+    this.logger.info(`🚀Server started on ${getFullServerPath(this.config.get('SERVICE_HOST'), this.config.get('SERVICE_PORT'))}`);
   }
 
   private async _initRoutes() {
@@ -69,7 +70,8 @@ export default class RestApplication {
     this.logger.info('Global middleware initialization…');
 
     this.expressApplication.use(express.json());
-    this.expressApplication.use('/upload', express.static(this.config.get('UPLOAD_DIRECTORY')));
+    this.expressApplication.use('/upload', express.static(this.config.get('UPLOAD_DIRECTORY_PATH')));
+    this.expressApplication.use('/static',express.static(this.config.get('STATIC_DIRECTORY_PATH')));
 
     const authenticateMiddleware = new AuthenticateMiddleware(this.config.get('JWT_SECRET'));
     this.expressApplication.use(authenticateMiddleware.execute.bind(authenticateMiddleware));
@@ -80,10 +82,10 @@ export default class RestApplication {
   private async _initExceptionFilters() {
     this.logger.info('Exception filters initialization');
 
+    this.expressApplication.use(this.authorizationExceptionFilter.catch.bind(this.authorizationExceptionFilter));
     this.expressApplication.use(this.validationExceptionFilter.catch.bind(this.validationExceptionFilter));
     this.expressApplication.use(this.httpErrorExceptionFilter.catch.bind(this.httpErrorExceptionFilter));
     this.expressApplication.use(this.defaultExceptionFilter.catch.bind(this.defaultExceptionFilter));
-    this.expressApplication.use(this.authorizationExceptionFilter.catch.bind(this.authorizationExceptionFilter));
 
     this.logger.info('Exception filters completed');
   }
