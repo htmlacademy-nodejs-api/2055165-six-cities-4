@@ -29,7 +29,11 @@ import { ConfigInterface } from '../../core/config/config.interface.js';
 import { RestSchema } from '../../core/config/rest.schema.js';
 import { UploadFileMiddleware } from '../../core/middlewares/upload-file.middleware.js';
 import PreviewImageRDO from './rdo/preview-image.rdo.js';
+import UserService from '../user/user.service.js';
 
+type ParamsUserDetails = {
+  userId: string;
+} | ParamsDictionary;
 
 type ParamsOfferDetails = {
   offerId: string;
@@ -40,6 +44,7 @@ export default class RentOfferController extends Controller {
   constructor(
   @inject(AppComponent.LoggerInterface) protected readonly logger: LoggerInterface,
   @inject(AppComponent.RentOfferServiceInterface) private readonly rentOfferService: RentOfferService,
+  @inject(AppComponent.UserServiceInterface) private readonly userService: UserService,
   @inject(AppComponent.CommentServiceInterface) private readonly commentService: CommentService,
   @inject(AppComponent.ConfigInterface) protected readonly configService: ConfigInterface<RestSchema>
   ) {
@@ -108,7 +113,18 @@ export default class RentOfferController extends Controller {
         new ValidateObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
         new DocumentModifyMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
-        new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY_PATH'), 'preview-image'),
+        new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY_PATH'), 'preview'),
+      ]
+    });
+    this.addRoute({
+      path: '/favorites/:userId',
+      method: HttpMethod.Get,
+      handler:this.getFavorites,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('userId'),
+        new DocumentExistsMiddleware(this.userService, 'User', 'userId'),
+        new DocumentModifyMiddleware(this.userService, 'User', 'userId'),
       ]
     });
   }
@@ -142,7 +158,6 @@ export default class RentOfferController extends Controller {
 
     const userId = res.locals.user ? res.locals.user.id : '';
     const premiumOffers = await this.rentOfferService.findPremium(city.toString(), MAX_PREMIUM_OFFERS_COUNT, userId);
-
     const offersResponse = premiumOffers?.map((offer) => fillRDO(RentOfferBasicRDO, offer));
     this.ok(res, offersResponse);
   }
@@ -179,5 +194,12 @@ export default class RentOfferController extends Controller {
 
     await this.rentOfferService.updateById(offerId, updateDTO);
     this.created(res, fillRDO(PreviewImageRDO, {updateDTO}));
+  }
+
+  public async getFavorites({params: {userId}}: Request<ParamsUserDetails>, res: Response): Promise<void> {
+
+    const existedUserFavorites = await this.rentOfferService.findUserFavorites(userId);
+    const favoritesResponse = existedUserFavorites?.map((offer) => fillRDO(RentOfferBasicRDO, offer));
+    this.ok(res, favoritesResponse);
   }
 }

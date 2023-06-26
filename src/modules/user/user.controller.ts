@@ -13,7 +13,6 @@ import { ConfigInterface } from '../../core/config/config.interface.js';
 import { RestSchema } from '../../core/config/rest.schema.js';
 import UserAuthRDO from './rdo/user-auth.rdo.js';
 import RentOfferService from '../rent-offer/rent-offer.service.js';
-import RentOfferBasicRDO from '../rent-offer/rdo/rent-offer-basic.rdo.js';
 import CreateUserDTO from './dto/create-user.dto.js';
 import HttpError from '../../core/errors/http-error.js';
 import { ValidateObjectIdMiddleware } from '../../core/middlewares/validate-id.middleware.js';
@@ -26,10 +25,10 @@ import { JWT_ALGORITHM } from './user.constants.js';
 import { PrivateRouteMiddleware } from '../../core/middlewares/private-route.middleware.js';
 import { DocumentModifyMiddleware } from '../../core/middlewares/document-modify.middleware.js';
 import UserBasicRDO from './rdo/user-basic.rdo.js';
-import { RentOfferFullRDO } from '../rent-offer/rdo/rent-offer-full.rdo.js';
 import AuthError from '../../core/errors/auth-error.js';
 import UserAvatarRDO from './rdo/user-avatar.rdo.js';
 import UpdateUserDTO from './dto/update-user.dto.js';
+import RentOfferBasicRDO from '../rent-offer/rdo/rent-offer-basic.rdo.js';
 
 type ParamsUserDetails = {
   userId: string;
@@ -82,17 +81,17 @@ export default class UserController extends Controller {
         new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY_PATH'), 'avatar')
       ]
     });
-    this.addRoute({
-      path: '/:userId/favorites/',
-      method: HttpMethod.Get,
-      handler:this.getFavorites,
-      middlewares: [
-        new PrivateRouteMiddleware(),
-        new ValidateObjectIdMiddleware('userId'),
-        new DocumentModifyMiddleware(this.userService, 'User', 'userId'),
-        new DocumentExistsMiddleware(this.userService, 'User', 'userId')
-      ]
-    });
+    // this.addRoute({
+    //   path: '/:userId/favorites/',
+    //   method: HttpMethod.Get,
+    //   handler:this.getFavorites,
+    //   middlewares: [
+    //     new PrivateRouteMiddleware(),
+    //     new ValidateObjectIdMiddleware('userId'),
+    //     new DocumentModifyMiddleware(this.userService, 'User', 'userId'),
+    //     new DocumentExistsMiddleware(this.userService, 'User', 'userId')
+    //   ]
+    // });
     this.addRoute({
       path: '/:userId/favorites/:offerId',
       method: HttpMethod.Put,
@@ -139,6 +138,13 @@ export default class UserController extends Controller {
     const {email} = res.locals.user;
 
     const foundedUser = await this.userService.findByEmail(email);
+
+    if (!foundedUser) {
+      throw new AuthError(
+        'Wrong authentication data. Check your login and password.',
+        'UserController'
+      );
+    }
     this.ok(res, fillRDO(UserBasicRDO, foundedUser));
   }
 
@@ -168,10 +174,10 @@ export default class UserController extends Controller {
   public async uploadAvatar(req: Request<ParamsUserDetails, ResBody, UpdateUserDTO>, res: Response): Promise<void> {
 
     const {userId} = req.params;
-    const uploadFile = {avatarPath: req.file?.filename};
+    const uploadFile = {avatar: req.file?.filename};
+    const updatedUser = await this.userService.updateById(userId, uploadFile);
 
-    await this.userService.updateById(userId, uploadFile);
-    this.created(res, fillRDO(UserAvatarRDO, uploadFile));
+    this.created(res, fillRDO(UserAvatarRDO, updatedUser));
 
   }
 
@@ -190,15 +196,15 @@ export default class UserController extends Controller {
 
     const status = isFav === '1';
     await this.userService.changeFavoriteStatus(userId, offerId, status);
-    const updatedOffer = await this.rentOfferService.findById(offerId, userId);
-    this.ok(res, fillRDO(RentOfferFullRDO, updatedOffer));
+    const favorites = await this.rentOfferService.findUserFavorites(userId);
+    this.ok(res, fillRDO(RentOfferBasicRDO, favorites));
   }
 
-  public async getFavorites({params: {userId}}: Request<ParamsUserDetails>, res: Response): Promise<void> {
+  // public async getFavorites({params: {userId}}: Request<ParamsUserDetails>, res: Response): Promise<void> {
 
-    const existedUserFavorites = await this.userService.findUserFavorites(userId);
-    const favoritesResponse = existedUserFavorites?.map((offer) => fillRDO(RentOfferBasicRDO, offer));
-    this.ok(res, favoritesResponse);
-  }
+  //   const existedUserFavorites = await this.userService.findUserFavorites(userId);
+  //   const favoritesResponse = existedUserFavorites?.map((offer) => fillRDO(RentOfferBasicRDO, offer));
+  //   this.ok(res, favoritesResponse);
+  // }
 }
 

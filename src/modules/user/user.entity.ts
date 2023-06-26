@@ -4,6 +4,8 @@ import type { User } from '../../types/user.type.js';
 import { UserStatus } from '../../types/user-status.type.js';
 import { createSHA256 } from '../../core/utils/common.js';
 import { RentOfferEntity } from '../rent-offer/rent-offer.entity.js';
+import { DEFAULT_AVATAR_FILE_NAME } from './user.constants.js';
+
 
 const {prop, modelOptions} = typegoose;
 
@@ -14,7 +16,7 @@ export interface UserEntity extends defaultClasses.Base {}
     collection: 'users'
   }
 })
-export class UserEntity extends defaultClasses.TimeStamps implements User {
+export class UserEntity extends defaultClasses.TimeStamps {
 
   @prop({required: true})
   public username!: string;
@@ -22,8 +24,8 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
   @prop({required: true, unique: true})
   public email!: string;
 
-  @prop({required: false, default: ''})
-  public avatarPath!: string;
+  @prop({required: true, default: DEFAULT_AVATAR_FILE_NAME})
+  public avatar!: string;
 
   @prop({required: true, type: () => String, enum: UserStatus})
   public status!: UserStatus;
@@ -39,7 +41,6 @@ export class UserEntity extends defaultClasses.TimeStamps implements User {
 
     this.username = userData.username;
     this.email = userData.email;
-    this.avatarPath = userData.avatarPath;
     this.status = userData.status;
   }
 
