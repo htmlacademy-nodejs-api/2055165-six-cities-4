@@ -10,6 +10,7 @@ import { RentOffer } from '../../types/rent-offer.type.js';
 import { getRandomArrItem } from '../utils/randoms.js';
 import {passwords} from '../../../mocks/passwords.js';
 import { RentOfferModel, UserModel } from '../../modules/entities/index.js';
+import ConfigService from '../config/config.service.js';
 
 export default class ImportCommand implements CliCommandInterface {
   public readonly name = '--import';
@@ -18,6 +19,7 @@ export default class ImportCommand implements CliCommandInterface {
   private userService: UserService;
   private rentOfferService: RentOfferService;
   private databaseService: MongoClientService;
+  private configService: ConfigService;
   private salt!: string;
 
   constructor() {
@@ -25,8 +27,9 @@ export default class ImportCommand implements CliCommandInterface {
     this.onComplete = this.onComplete.bind(this);
 
     this.logger = new PinoLogger();
-    this.rentOfferService = new RentOfferService(this.logger, RentOfferModel);
-    this.userService = new UserService(this.logger, UserModel);
+    this.configService = new ConfigService(this.logger);
+    this.rentOfferService = new RentOfferService(this.logger, RentOfferModel, this.configService);
+    this.userService = new UserService(this.logger, UserModel, this.configService);
     this.databaseService = new MongoClientService(this.logger);
   }
 
@@ -51,19 +54,19 @@ export default class ImportCommand implements CliCommandInterface {
   }
 
   public async execute(...params: string[]): Promise<void> {
-    if (params.length !== 3) {
+    if (params.length !== 1) {
       throw new Error('Invalid command params length');
     }
 
-    const [filename, DBUriPath, salt] = params;
+    const [filename] = params;
 
-    this.salt = salt;
+    this.salt = this.configService.get('SALT');
 
     if (!filename) {
       throw new Error('File doesn\'t exist');
     }
 
-    await this.databaseService.connect(DBUriPath);
+    await this.databaseService.connect(this.configService.get('CLI_CONNECT_DB_PATH'));
 
     const fileReader = new TSVFileReader(filename.trim());
 
