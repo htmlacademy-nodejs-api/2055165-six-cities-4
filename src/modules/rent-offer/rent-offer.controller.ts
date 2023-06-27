@@ -118,7 +118,7 @@ export default class RentOfferController extends Controller {
     });
     this.addRoute({
       path: '/:offerId/upload/preview',
-      method: HttpMethod.Post,
+      method: HttpMethod.Put,
       handler: this.uploadPreviewImage,
       middlewares: [
         new PrivateRouteMiddleware(),
@@ -130,7 +130,7 @@ export default class RentOfferController extends Controller {
     });
     this.addRoute({
       path: '/:offerId/upload/images',
-      method: HttpMethod.Post,
+      method: HttpMethod.Put,
       handler: this.uploadOfferImages,
       middlewares: [
         new PrivateRouteMiddleware(),
