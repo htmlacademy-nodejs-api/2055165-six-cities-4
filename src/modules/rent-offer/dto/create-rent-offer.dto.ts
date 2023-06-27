@@ -20,15 +20,6 @@ export default class CreateRentOfferDTO {
   @IsEnum(CityName, {message: `city must be only one of the following: ${Object.values(CityName).join(', ')}`})
   public city!: CityName;
 
-  // @IsMimeType({message: 'preview must be a valid image file'})
-  // public previewImage!: string;
-
-  // @IsArray({message: '"images" field must be an array'})
-  // @ArrayMinSize(6, {message: '"images" field must contain 6 image files'})
-  // @ArrayMaxSize(6, {message: '"images" field must contain 6 image files'})
-  // @IsMimeType({each: true, message: 'must be a valid image file'})
-  public images!: string[];
-
   @IsBoolean({message: '"isPremium" field must be a boolean'})
   public isPremium!: boolean;
 

@@ -18,6 +18,7 @@ export default class DefaultExceptionFilter implements ExceptionFilterInterface 
 
   public catch(error: Error, _req: Request, res: Response, _next: NextFunction) {
     this.logger.error(`[BaseException]: ${error.message}`);
+    console.log(error);
 
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)

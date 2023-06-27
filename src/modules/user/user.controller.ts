@@ -71,7 +71,7 @@ export default class UserController extends Controller {
     });
     this.addRoute({path: '/logout', method: HttpMethod.Delete, handler: this.logout});
     this.addRoute({
-      path: '/:userId/avatar',
+      path: '/:userId/upload/avatar',
       method: HttpMethod.Post,
       handler: this.uploadAvatar,
       middlewares: [
@@ -81,17 +81,6 @@ export default class UserController extends Controller {
         new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY_PATH'), 'avatar')
       ]
     });
-    // this.addRoute({
-    //   path: '/:userId/favorites/',
-    //   method: HttpMethod.Get,
-    //   handler:this.getFavorites,
-    //   middlewares: [
-    //     new PrivateRouteMiddleware(),
-    //     new ValidateObjectIdMiddleware('userId'),
-    //     new DocumentModifyMiddleware(this.userService, 'User', 'userId'),
-    //     new DocumentExistsMiddleware(this.userService, 'User', 'userId')
-    //   ]
-    // });
     this.addRoute({
       path: '/:userId/favorites/:offerId',
       method: HttpMethod.Put,
@@ -174,11 +163,13 @@ export default class UserController extends Controller {
   public async uploadAvatar(req: Request<ParamsUserDetails, ResBody, UpdateUserDTO>, res: Response): Promise<void> {
 
     const {userId} = req.params;
-    const uploadFile = {avatar: req.file?.filename};
-    const updatedUser = await this.userService.updateById(userId, uploadFile);
 
-    this.created(res, fillRDO(UserAvatarRDO, updatedUser));
+    if (req.file) {
+      const uploadFile = {avatar: req.file.filename};
+      const updatedUser = await this.userService.updateById(userId, uploadFile);
 
+      this.created(res, fillRDO(UserAvatarRDO, updatedUser));
+    }
   }
 
   public async logout(_req: Request, _res: Response): Promise<void> {

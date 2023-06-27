@@ -42,16 +42,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlc
 
 ## Загрузка аватара пользователем
 
-POST  http://localhost:2000/users/64999ee166404b7e913db229/avatar HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5OTllZTE2NjQwNGI3ZTkxM2RiMjI5IiwiaWF0IjoxNjg3Nzg5MjgxLCJleHAiOjE2ODc4NzU2ODF9.5q2CKYDMMw9vv9n4qw5i1NbbFBoIsbm_rZQnmG8KMl4
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+POST  http://localhost:2000/users/64974ef5bc8fdadc5a227271/upload/avatar HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4Nzg2OTI4MCwiZXhwIjoxNjg3OTU1NjgwfQ.lj_LERy81_F0zR2jPDvuBemgd62017kb6TSwtdyQYHs
+Content-Type: multipart/form-data; boundary=boundary
 
-------WebKitFormBoundary7MA4YWxkTrZu0gW
+--boundary
 Content-Disposition: form-data; name="avatar"; filename="avatar.jpg"
 Content-Type: image/jpeg
 
 < Q:/нафиксон.jpg
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
+--boundary--
+
+
+###
 
 
 

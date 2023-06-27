@@ -1,21 +1,14 @@
 #Предложения
 ## Создание нового предложения
 POST http://localhost:2000/rent-offers HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4NzcyMzcwMiwiZXhwIjoxNjg3ODEwMTAyfQ.ilRQz_qcmgZsp47dsHo62v9xTG_lTDmiAut8lmdWkjw
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4Nzg2OTI4MCwiZXhwIjoxNjg3OTU1NjgwfQ.lj_LERy81_F0zR2jPDvuBemgd62017kb6TSwtdyQYHs
 Content-Type: application/json
 
 {
-  "title": "Paris offer-5",
+  "title": "new offer with no img",
   "description": "long description for validation testoffer",
   "city": "Paris",
-  "images": [
-        "offer-image-7.jpg",
-        "offer-image-6.jpg",
-        "offer-image-1.jpg",
-        "offer-image-2.jpg",
-        "offer-image-4.jpg",
-        "offer-image-8.jpg"
-  ],
+
   "isPremium": false,
   "type": "hotel",
   "bedrooms": 5,
@@ -74,21 +67,66 @@ GET http://localhost:2000/rent-offers/6498b3e5f372335d3ad3d6c3/comments HTTP/1.1
 
 ###
 
-## Загрузка preview
-POST  http://localhost:2000/rent-offers/64974b9cbc8fdadc5a227253/preview HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3RAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTIxZTgxNGQwNTAzMWI5NGIzOGQ5ZCIsImlhdCI6MTY4NzYzNjg0MywiZXhwIjoxNjg3NzIzMjQzfQ.58iVuwbVZAXdwfo6m_aW1WV5jivW8R6tvNBPVjcWL2A
-Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="preview-image"; filename="preview.png"
-Content-Type: image/png
-
-< Q:/preview.png
-------WebKitFormBoundary7MA4YWxkTrZu0gW--
-###
 
 ## Получить избранные предложения пользователя
 GET http://localhost:2000/rent-offers/favorites/64999ee166404b7e913db229/ HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5OTllZTE2NjQwNGI3ZTkxM2RiMjI5IiwiaWF0IjoxNjg3Nzg5MjgxLCJleHAiOjE2ODc4NzU2ODF9.5q2CKYDMMw9vv9n4qw5i1NbbFBoIsbm_rZQnmG8KMl4
 
+###
+
+## Загрузка preview для оффера
+POST http://localhost:2000/rent-offers/6498af6207c98cf4951723c4/upload/preview HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4NzgwNDY2OSwiZXhwIjoxNjg3ODkxMDY5fQ.MkXb_6v-rEh3Gc9VRd82qOS25VTvZpg1bD_q-MqWfPw
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="preview"; filename="preview.png"
+Content-Type: image/png
+
+< Q:/preview.png
+--boundary--
+###
+
+## Загрузка images для оффера
+POST http://localhost:2000/rent-offers/6498af6207c98cf4951723c4/upload/images HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4Nzg2OTI4MCwiZXhwIjoxNjg3OTU1NjgwfQ.lj_LERy81_F0zR2jPDvuBemgd62017kb6TSwtdyQYHs
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="images"; filename="1.jpg"
+Content-Type: image/jpeg
+
+< Q:/images/1.jpg
+
+--boundary
+Content-Disposition: form-data; name="images"; filename="2.jpg"
+Content-Type: image/jpeg
+
+< Q:/images/2.jpg
+
+--boundary
+Content-Disposition: form-data; name="images"; filename="3.jpg"
+Content-Type: image/jpeg
+
+< Q:/images/3.jpg
+
+--boundary
+Content-Disposition: form-data; name="images"; filename="4.jpg"
+Content-Type: image/jpeg
+
+< Q:/images/4.jpg
+
+--boundary
+Content-Disposition: form-data; name="images"; filename="5.jpg"
+Content-Type: image/jpeg
+
+< Q:/images/5.jpg
+
+--boundary
+Content-Disposition: form-data; name="images"; filename="6.jpg"
+Content-Type: image/jpeg
+
+< Q:/images/6.jpg
+
+--boundary--
 ###

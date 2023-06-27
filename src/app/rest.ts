@@ -1,5 +1,6 @@
 import {inject, injectable } from 'inversify';
 import express, { Express } from 'express';
+import cors from 'cors';
 
 import { LoggerInterface } from '../core/logger/logger.interface.js';
 import { ConfigInterface } from '../core/config/config.interface.js';
@@ -11,6 +12,7 @@ import { ControllerInterface } from '../core/controller/controller.interface.js'
 import { ExceptionFilterInterface } from '../core/exception-filters/exception-filter.interface.js';
 import { AuthenticateMiddleware } from '../core/middlewares/authenticate.middleware.js';
 import { getFullServerPath } from '../core/utils/common.js';
+
 
 @injectable()
 export default class RestApplication {
@@ -75,6 +77,7 @@ export default class RestApplication {
 
     const authenticateMiddleware = new AuthenticateMiddleware(this.config.get('JWT_SECRET'));
     this.expressApplication.use(authenticateMiddleware.execute.bind(authenticateMiddleware));
+    this.expressApplication.use(cors());
 
     this.logger.info('Global middleware initialization completed');
   }
