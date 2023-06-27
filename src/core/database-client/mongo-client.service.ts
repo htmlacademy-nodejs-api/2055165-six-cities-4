@@ -49,7 +49,7 @@ export default class MongoClientService implements DatabaseClientInterface {
     this.mongooseInstance = null;
   }
 
-  public async connect(uri: string): Promise<void> {
+  public async connect(uri = 'mongodb://admin:pass1337@127.0.0.1:27017/six-cities-db?authSource=admin'): Promise<void> {
     if (this.isConnected) {
       throw new Error('MongoDB client already connected');
     }
