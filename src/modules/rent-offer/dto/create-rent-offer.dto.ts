@@ -4,13 +4,31 @@ import { Goods } from '../../../types/goods.type.js';
 import { OfferType } from '../../../types/offer-type.type.js';
 import { CityName } from '../../../types/city.type.js';
 
+const MIN_TITLE_LENGTH = 10;
+const MAX_TITLE_LENGTH = 100;
+
+const MIN_DESCRIPTION_LENGTH = 20;
+const MAX_DESCRIPTION_LENGTH = 1024;
+
+const MIN_BEDROOMS_COUNT = 1;
+const MAX_BEDROOMS_COUNT = 8;
+
+const MIN_MAXADULTS_COUNT = 1;
+const MAX_MAXADULTS_COUNT = 10;
+
+const MIN_PRICE = 100;
+const MAX_PRICE = 100_000;
+
+const MIN_GOODS_COUNT = 1;
+
+
 export default class CreateRentOfferDTO {
-  @MinLength(10, {message: 'Minimum title length must be 10 chars'})
-  @MaxLength(100, {message: 'Maximum title length must be 100 chars'})
+  @MinLength(MIN_TITLE_LENGTH, {message: `Minimum title length must be ${MIN_TITLE_LENGTH} chars`})
+  @MaxLength(MAX_TITLE_LENGTH, {message: `Maximum title length must be ${MAX_TITLE_LENGTH} chars`})
   public title!: string;
 
-  @MinLength(20, {message: 'Minimum description length must be 20 chars'})
-  @MaxLength(1024, {message: 'Maximum description length must be 1024 chars'})
+  @MinLength(MIN_DESCRIPTION_LENGTH, {message: `Minimum description length must be ${MIN_DESCRIPTION_LENGTH} chars`})
+  @MaxLength(MAX_DESCRIPTION_LENGTH, {message: `Maximum description length must be ${MAX_DESCRIPTION_LENGTH} chars`})
   public description!: string;
 
   @IsOptional()
@@ -20,15 +38,6 @@ export default class CreateRentOfferDTO {
   @IsEnum(CityName, {message: `city must be only one of the following: ${Object.values(CityName).join(', ')}`})
   public city!: CityName;
 
-  // @IsMimeType({message: 'preview must be a valid image file'})
-  public previewImage!: string;
-
-  // @IsArray({message: '"images" field must be an array'})
-  // @ArrayMinSize(6, {message: '"images" field must contain 6 image files'})
-  // @ArrayMaxSize(6, {message: '"images" field must contain 6 image files'})
-  // @IsMimeType({each: true, message: 'must be a valid image file'})
-  public images!: string[];
-
   @IsBoolean({message: '"isPremium" field must be a boolean'})
   public isPremium!: boolean;
 
@@ -36,24 +45,24 @@ export default class CreateRentOfferDTO {
   public type!: OfferType;
 
   @IsInt({message: 'bedrooms count must be an integer value'})
-  @Min(1, {message: 'bedrooms min count is 1'})
-  @Max(8, {message: 'bedrooms max count is 8'})
+  @Min(MIN_BEDROOMS_COUNT, {message: `bedrooms min count is ${MIN_BEDROOMS_COUNT}`})
+  @Max(MAX_BEDROOMS_COUNT, {message: `bedrooms max count is ${MAX_BEDROOMS_COUNT}`})
   public bedrooms!: number;
 
   @IsInt({message: 'maxAdults count must be an integer value'})
-  @Min(1, {message: 'maxAdults min count is 1'})
-  @Max(10, {message: 'maxAdults max count is 10'})
+  @Min(MIN_MAXADULTS_COUNT, {message: `maxAdults min count is ${MIN_MAXADULTS_COUNT}`})
+  @Max(MAX_MAXADULTS_COUNT, {message: `maxAdults max count is ${MAX_MAXADULTS_COUNT}`})
   public maxAdults!: number;
 
   @IsInt({message: 'price must be an integer value'})
-  @Min(100, {message: 'price min count is 100'})
-  @Max(100_000, {message: 'price max count is 100_000'})
+  @Min(MIN_PRICE, {message: `price min count is ${MIN_PRICE}`})
+  @Max(MAX_PRICE, {message: `price min count is ${MAX_PRICE}`})
   public price!: number;
 
   @IsArray({message: 'field "goods" must be an array'})
   @IsEnum(Goods, {each: true, message: `each item in "goods" array must be one of the following: ${Object.values(Goods).join(', ')}`})
   @ArrayUnique({message: 'all items in "goods" array must be unique'})
-  @ArrayMinSize(1)
+  @ArrayMinSize(MIN_GOODS_COUNT, {message: `field "goods" must contain ${MIN_GOODS_COUNT} items count`})
   public goods!: Goods[];
 
   public advertiserId!: string;
