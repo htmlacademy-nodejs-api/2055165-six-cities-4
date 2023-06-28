@@ -69,7 +69,6 @@ export default class UserController extends Controller {
       handler: this.requestAuth,
       middlewares: [new ValidateDTOMiddleware(AuthUserDTO)]
     });
-    this.addRoute({path: '/logout', method: HttpMethod.Delete, handler: this.logout});
     this.addRoute({
       path: '/:userId/upload/avatar',
       method: HttpMethod.Post,
@@ -172,10 +171,6 @@ export default class UserController extends Controller {
     }
   }
 
-  public async logout(_req: Request, _res: Response): Promise<void> {
-    throw new HttpError(StatusCodes.NOT_IMPLEMENTED, 'not implemented');
-  }
-
   public async updateFavoriteStatus({params: {userId, offerId}, query: {isFav}}: Request<ParamsFavoriteOfferDetails>, res: Response): Promise<void> {
     if(!isFav || (isFav !== '0' && isFav !== '1')) {
       throw new HttpError(
@@ -190,12 +185,5 @@ export default class UserController extends Controller {
     const favorites = await this.rentOfferService.findUserFavorites(userId);
     this.ok(res, fillRDO(RentOfferBasicRDO, favorites));
   }
-
-  // public async getFavorites({params: {userId}}: Request<ParamsUserDetails>, res: Response): Promise<void> {
-
-  //   const existedUserFavorites = await this.userService.findUserFavorites(userId);
-  //   const favoritesResponse = existedUserFavorites?.map((offer) => fillRDO(RentOfferBasicRDO, offer));
-  //   this.ok(res, favoritesResponse);
-  // }
 }
 

@@ -3,32 +3,16 @@ import {ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsDateString, IsEnum, IsI
 import { Goods } from '../../../types/goods.type.js';
 import { OfferType } from '../../../types/offer-type.type.js';
 import { CityName } from '../../../types/city.type.js';
-
-const MIN_TITLE_LENGTH = 10;
-const MAX_TITLE_LENGTH = 100;
-
-const MIN_DESCRIPTION_LENGTH = 20;
-const MAX_DESCRIPTION_LENGTH = 1024;
-
-const MIN_BEDROOMS_COUNT = 1;
-const MAX_BEDROOMS_COUNT = 8;
-
-const MIN_MAXADULTS_COUNT = 1;
-const MAX_MAXADULTS_COUNT = 10;
-
-const MIN_PRICE = 100;
-const MAX_PRICE = 100_000;
-
-const MIN_GOODS_COUNT = 1;
+import { ADULTS_COUNT, BEDROOMS_COUNT, DESCRIPTION_LENGTH, MIN_GOODS_COUNT, OFFER_PRICE, TITLE_LENGTH } from '../rent-offer.constants.js';
 
 
 export default class CreateRentOfferDTO {
-  @MinLength(MIN_TITLE_LENGTH, {message: `Minimum title length must be ${MIN_TITLE_LENGTH} chars`})
-  @MaxLength(MAX_TITLE_LENGTH, {message: `Maximum title length must be ${MAX_TITLE_LENGTH} chars`})
+  @MinLength(TITLE_LENGTH.MIN, {message: `Minimum title length must be ${TITLE_LENGTH.MIN} chars`})
+  @MaxLength(TITLE_LENGTH.MAX, {message: `Maximum title length must be ${TITLE_LENGTH.MAX} chars`})
   public title!: string;
 
-  @MinLength(MIN_DESCRIPTION_LENGTH, {message: `Minimum description length must be ${MIN_DESCRIPTION_LENGTH} chars`})
-  @MaxLength(MAX_DESCRIPTION_LENGTH, {message: `Maximum description length must be ${MAX_DESCRIPTION_LENGTH} chars`})
+  @MinLength(DESCRIPTION_LENGTH.MIN, {message: `Minimum description length must be ${DESCRIPTION_LENGTH.MIN} chars`})
+  @MaxLength(DESCRIPTION_LENGTH.MAX, {message: `Maximum description length must be ${DESCRIPTION_LENGTH.MAX} chars`})
   public description!: string;
 
   @IsOptional()
@@ -45,18 +29,18 @@ export default class CreateRentOfferDTO {
   public type!: OfferType;
 
   @IsInt({message: 'bedrooms count must be an integer value'})
-  @Min(MIN_BEDROOMS_COUNT, {message: `bedrooms min count is ${MIN_BEDROOMS_COUNT}`})
-  @Max(MAX_BEDROOMS_COUNT, {message: `bedrooms max count is ${MAX_BEDROOMS_COUNT}`})
+  @Min(BEDROOMS_COUNT.MIN, {message: `bedrooms min count is ${BEDROOMS_COUNT.MIN}`})
+  @Max(BEDROOMS_COUNT.MAX, {message: `bedrooms max count is ${BEDROOMS_COUNT.MAX}`})
   public bedrooms!: number;
 
   @IsInt({message: 'maxAdults count must be an integer value'})
-  @Min(MIN_MAXADULTS_COUNT, {message: `maxAdults min count is ${MIN_MAXADULTS_COUNT}`})
-  @Max(MAX_MAXADULTS_COUNT, {message: `maxAdults max count is ${MAX_MAXADULTS_COUNT}`})
+  @Min(ADULTS_COUNT.MIN, {message: `maxAdults min count is ${ADULTS_COUNT.MIN}`})
+  @Max(ADULTS_COUNT.MAX, {message: `maxAdults max count is ${ADULTS_COUNT.MAX}`})
   public maxAdults!: number;
 
   @IsInt({message: 'price must be an integer value'})
-  @Min(MIN_PRICE, {message: `price min count is ${MIN_PRICE}`})
-  @Max(MAX_PRICE, {message: `price min count is ${MAX_PRICE}`})
+  @Min(OFFER_PRICE.MIN, {message: `price min count is ${OFFER_PRICE.MIN}`})
+  @Max(OFFER_PRICE.MAX, {message: `price min count is ${OFFER_PRICE.MAX}`})
   public price!: number;
 
   @IsArray({message: 'field "goods" must be an array'})

@@ -5,6 +5,7 @@ import type { RentOffer } from '../../types/rent-offer.type.js';
 import type { UserStatus } from '../../types/user-status.type.js';
 import type { User } from '../../types/user.type.js';
 
+const RADIX = 10;
 
 export function createOffer(offerData: string): RentOffer {
   const [
@@ -30,9 +31,9 @@ export function createOffer(offerData: string): RentOffer {
     isPremium: isPremium === 'true',
     rating: Number.parseFloat(rating),
     type: type as OfferType,
-    bedrooms: Number.parseInt(bedrooms, 10),
-    maxAdults: Number.parseInt(maxAdults, 10),
-    price: Number.parseInt(price, 10),
+    bedrooms: Number.parseInt(bedrooms, RADIX),
+    maxAdults: Number.parseInt(maxAdults, RADIX),
+    price: Number.parseInt(price, RADIX),
     goods: goods.split(';') as Goods[],
     advertiser,
     latitude: Number.parseFloat(latitude),
