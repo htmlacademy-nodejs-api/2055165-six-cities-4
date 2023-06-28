@@ -5,13 +5,16 @@ import OfferGenerator from '../../modules/mock-generators/offer-generator.js';
 import TSVFileWriter from '../file-writer/tsv-file-writer.js';
 import type { MockData } from '../../types/mock-data.type.js';
 
+
+const RADIX = 10;
+
 export default class GenerateCommand implements CliCommandInterface {
   public readonly name = '--generate';
   private initialData!: MockData;
 
   public async execute(...params: string[]): Promise<void> {
     const [count, filepath, url] = params;
-    const offerCount = Number.parseInt(count, 10);
+    const offerCount = Number.parseInt(count, RADIX);
 
     this.initialData = await got.get(url).json().catch(() => {
       throw new Error(url ? `Can't fetch data from ${url}.` : 'incorrect filepath');

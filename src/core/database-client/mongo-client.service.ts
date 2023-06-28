@@ -9,9 +9,12 @@ import { AppComponent } from '../../types/app-component.type.js';
 import { LoggerInterface } from '../logger/logger.interface.js';
 import ConfigService from '../config/config.service.js';
 
-const RETRY_COUNT = 5;
-const RETRY_TIMEOUT = 1000;
+
 const DB_CONNECTION_TIMEOUT = 5000;
+const RETRY = {
+  COUNT: 5,
+  TIMEOUT: 1000
+};
 
 @injectable()
 export default class MongoClientService implements DatabaseClientInterface {
@@ -25,14 +28,14 @@ export default class MongoClientService implements DatabaseClientInterface {
 
   private async _connectWithRetry(uri: string): Promise<Mongoose> {
     let attempt = 0;
-    while (attempt < RETRY_COUNT) {
+    while (attempt < RETRY.COUNT) {
       try {
         return await mongoose.connect(uri, {serverSelectionTimeoutMS: DB_CONNECTION_TIMEOUT});
       } catch (error) {
         attempt++;
         this.logger.error(`Failed to connect to the database. Attempt ${attempt}`);
-        await setTimeout(RETRY_TIMEOUT);
-        this.logger.error(`${attempt !== RETRY_COUNT ? 'Reconnecting...' : 'Attempts limit exceeded.'}`);
+        await setTimeout(RETRY.TIMEOUT);
+        this.logger.error(`${attempt !== RETRY.COUNT ? 'Reconnecting...' : 'Attempts limit exceeded.'}`);
       }
     }
 

@@ -1,20 +1,16 @@
 import { IsInt, IsMongoId, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { COMMENT_LENGTH, COMMENT_RATING } from '../comment.constants';
 
-const MIN_COMMENT_LENGTH = 5;
-const MAX_COMMENT_LENGTH = 1024;
-
-const MIN_RATING = 1;
-const MAX_RATING = 5;
 
 export default class CreateCommentDTO {
 
-  @MinLength(MIN_COMMENT_LENGTH, {message: `Minimum comment length must be ${MIN_COMMENT_LENGTH} chars`})
-  @MaxLength(MAX_COMMENT_LENGTH, {message: `Minimum comment length must be ${MAX_COMMENT_LENGTH} chars`})
+  @MinLength(COMMENT_LENGTH.MIN, {message: `Minimum comment length must be ${COMMENT_LENGTH.MIN} chars`})
+  @MaxLength(COMMENT_LENGTH.MAX, {message: `Minimum comment length must be ${COMMENT_LENGTH.MAX} chars`})
   public text!: string;
 
   @IsInt({message: 'rating must be an integer'})
-  @Min(MIN_RATING, {message: `rating min value is ${MIN_RATING}`})
-  @Max(MAX_RATING, {message: `rating min value is ${MAX_RATING}`})
+  @Min(COMMENT_RATING.MIN, {message: `rating min value is ${COMMENT_RATING.MIN}`})
+  @Max(COMMENT_RATING.MAX, {message: `rating min value is ${COMMENT_RATING.MAX}`})
   public rating!: number;
 
   @IsMongoId({message: 'offerId field must be a valid id'})

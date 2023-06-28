@@ -30,7 +30,7 @@ export default class ImportCommand implements CliCommandInterface {
     this.configService = new ConfigService(this.logger);
     this.rentOfferService = new RentOfferService(this.logger, RentOfferModel, this.configService);
     this.userService = new UserService(this.logger, UserModel, this.configService);
-    this.databaseService = new MongoClientService(this.logger);
+    this.databaseService = new MongoClientService(this.logger, this.configService);
   }
 
   private async saveOffer(offer: RentOffer) {
