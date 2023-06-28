@@ -7,6 +7,7 @@ import type { Mongoose } from 'mongoose';
 import { DatabaseClientInterface } from './database-client.interface.js';
 import { AppComponent } from '../../types/app-component.type.js';
 import { LoggerInterface } from '../logger/logger.interface.js';
+import ConfigService from '../config/config.service.js';
 
 const RETRY_COUNT = 5;
 const RETRY_TIMEOUT = 1000;
@@ -18,7 +19,8 @@ export default class MongoClientService implements DatabaseClientInterface {
   private mongooseInstance: Mongoose | null = null;
 
   constructor(
-    @inject(AppComponent.LoggerInterface) private readonly logger: LoggerInterface
+    @inject(AppComponent.LoggerInterface) private readonly logger: LoggerInterface,
+    @inject(AppComponent.ConfigInterface) private readonly configService: ConfigService
   ) {}
 
   private async _connectWithRetry(uri: string): Promise<Mongoose> {
@@ -49,7 +51,7 @@ export default class MongoClientService implements DatabaseClientInterface {
     this.mongooseInstance = null;
   }
 
-  public async connect(uri = 'mongodb://admin:pass1337@127.0.0.1:27017/six-cities-db?authSource=admin'): Promise<void> {
+  public async connect(uri = this.configService.get('CLI_CONNECT_DB_PATH')): Promise<void> {
     if (this.isConnected) {
       throw new Error('MongoDB client already connected');
     }
