@@ -13,7 +13,7 @@ export default class HelpCommand implements CliCommandInterface {
             --version:                       # выводит номер версии приложения six cities
             --help:                          # печатает этот текст в терминал
             --import <filepath>:             # импортирует данные приложения из TSV-файла
-            --generate <n> <filepath> <url>  # генерирует произвольное количество тестовых объявлений об аренде
+            --generate <n> <filepath> <url>  # генерирует произвольное количество тестовых объявлений об аренде и добавляет в базу
       `
     );
   }
