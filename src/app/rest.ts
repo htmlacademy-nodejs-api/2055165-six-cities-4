@@ -52,10 +52,11 @@ export default class RestApplication {
   private async _initServer() {
     this.logger.info('Try to init server…');
 
+    const host = this.config.get('SERVICE_HOST');
     const port = this.config.get('SERVICE_PORT');
     this.expressApplication.listen(port);
 
-    this.logger.info(`🚀Server started on ${getFullServerPath(this.config.get('SERVICE_HOST'), this.config.get('SERVICE_PORT'))}`);
+    this.logger.info(`🚀Server started on ${getFullServerPath(host, port)}`);
   }
 
   private async _initRoutes() {
