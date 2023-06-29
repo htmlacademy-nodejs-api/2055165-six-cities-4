@@ -1,5 +1,6 @@
 import { IsInt, IsMongoId, Max, MaxLength, Min, MinLength } from 'class-validator';
-import { COMMENT_LENGTH, COMMENT_RATING } from '../comment.constants';
+
+import { COMMENT_LENGTH, COMMENT_RATING } from '../comment.constants.js';
 
 
 export default class CreateCommentDTO {
