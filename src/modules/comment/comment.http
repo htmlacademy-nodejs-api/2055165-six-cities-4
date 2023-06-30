@@ -1,19 +1,15 @@
 #Комментарии
 ##Создание нового комментария
-POST http://localhost:2000/comments HTTP/1.1
+POST http://localhost:5000/comments HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4NzgwNDgwMCwiZXhwIjoxNjg3ODkxMjAwfQ.YqlWDC597X9s-s1cFApHlpDkMw_COWgInOcZ0sItrow
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5ZGM0ZWQ2NGNjNjFkNTQ5MDI1Mzg1IiwiaWF0IjoxNjg4MDYxMTY1LCJleHAiOjE2ODgxNDc1NjV9.Gw4SQ3unsa3Vu6NJeUFi4gC50pOp-rr1MZuVXE9i17Y
 
 {
-  "text": "Новенький комментарий от user-2",
+  "text": "Новенький комментарий от testuser-1",
   "rating": 2,
-  "offerId": "6498b3e5f372335d3ad3d6c3"
+  "offerId": "649b17f810fefa4c01ec7271"
 }
 
 ###
 
-//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4NzgwNDY2OSwiZXhwIjoxNjg3ODkxMDY5fQ.MkXb_6v-rEh3Gc9VRd82qOS25VTvZpg1bD_q-MqWfPw
-//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5OTllZTE2NjQwNGI3ZTkxM2RiMjI5IiwiaWF0IjoxNjg3Nzg5MjgxLCJleHAiOjE2ODc4NzU2ODF9.5q2CKYDMMw9vv9n4qw5i1NbbFBoIsbm_rZQnmG8KMl4
-//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4NzgwNDgwMCwiZXhwIjoxNjg3ODkxMjAwfQ.YqlWDC597X9s-s1cFApHlpDkMw_COWgInOcZ0sItrow
-
-
+//eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5ZGM0ZWQ2NGNjNjFkNTQ5MDI1Mzg1IiwiaWF0IjoxNjg4MDYxMTY1LCJleHAiOjE2ODgxNDc1NjV9.Gw4SQ3unsa3Vu6NJeUFi4gC50pOp-rr1MZuVXE9i17Y
