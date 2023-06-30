@@ -29,12 +29,8 @@ import { ConfigInterface } from '../../core/config/config.interface.js';
 import { RestSchema } from '../../core/config/rest.schema.js';
 import { UploadFileMiddleware } from '../../core/middlewares/upload-file.middleware.js';
 import RentOfferPreviewRDO from './rdo/rent-offer-preview.rdo.js';
-import UserService from '../user/user.service.js';
 import { RentOfferImagesRDO } from './rdo/rent-offer-images.rdo.js';
 
-type ParamsUserDetails = {
-  userId: string;
-} | ParamsDictionary;
 
 type ParamsOfferDetails = {
   offerId: string;
@@ -45,7 +41,6 @@ export default class RentOfferController extends Controller {
   constructor(
   @inject(AppComponent.LoggerInterface) protected readonly logger: LoggerInterface,
   @inject(AppComponent.RentOfferServiceInterface) private readonly rentOfferService: RentOfferService,
-  @inject(AppComponent.UserServiceInterface) private readonly userService: UserService,
   @inject(AppComponent.CommentServiceInterface) private readonly commentService: CommentService,
   @inject(AppComponent.ConfigInterface) protected readonly configService: ConfigInterface<RestSchema>
   ) {
@@ -106,14 +101,11 @@ export default class RentOfferController extends Controller {
       ]
     });
     this.addRoute({
-      path: '/favorites/:userId',
+      path: '/favorites',
       method: HttpMethod.Get,
       handler:this.getFavorites,
       middlewares: [
         new PrivateRouteMiddleware(),
-        new ValidateObjectIdMiddleware('userId'),
-        new DocumentExistsMiddleware(this.userService, 'User', 'userId'),
-        new DocumentModifyMiddleware(this.userService, 'User', 'userId'),
       ]
     });
     this.addRoute({
@@ -179,6 +171,7 @@ export default class RentOfferController extends Controller {
 
     const userId = res.locals.user ? res.locals.user.id : '';
     const offer = await this.rentOfferService.findById(offerId, userId);
+
     this.ok(res, fillRDO(RentOfferFullRDO, offer));
   }
 
@@ -201,8 +194,9 @@ export default class RentOfferController extends Controller {
     this.ok(res, fillRDO(CommentRDO, comments));
   }
 
-  public async getFavorites({params: {userId}}: Request<ParamsUserDetails>, res: Response): Promise<void> {
+  public async getFavorites(_req: Request, res: Response): Promise<void> {
 
+    const userId = res.locals.user.id;
     const existedUserFavorites = await this.rentOfferService.findUserFavorites(userId);
     const favoritesResponse = existedUserFavorites?.map((offer) => fillRDO(RentOfferBasicRDO, offer));
     this.ok(res, favoritesResponse);

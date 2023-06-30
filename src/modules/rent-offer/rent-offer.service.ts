@@ -73,7 +73,8 @@ export default class RentOfferService implements RentOfferServiceInterface {
                 true,
                 false
               ]
-          }
+          },
+          id: { $toString: '$_id'}
         }
       },
       { $unset: 'user' },
@@ -120,7 +121,8 @@ export default class RentOfferService implements RentOfferServiceInterface {
                 true,
                 false
               ]
-          }
+          },
+          id: { $toString: '$_id'}
         }
       },
       { $unset: 'user' },
@@ -186,7 +188,8 @@ export default class RentOfferService implements RentOfferServiceInterface {
                 true,
                 false
               ]
-          }
+          },
+          id: { $toString: '$_id'}
         }
       },
       { $unset: 'user' },
@@ -215,7 +218,7 @@ export default class RentOfferService implements RentOfferServiceInterface {
       },
       { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
       { $match: { $expr: {$in: ['$_id', '$user.favorites'] } } },
-      { $addFields: { isFavorite: true } },
+      { $addFields: { isFavorite: true, id: { $toString: '$_id'} } },
       { $unset: 'user' },
       { $sort: { createdAt: SortType.Down }},
     ]).exec().then((offers) => {

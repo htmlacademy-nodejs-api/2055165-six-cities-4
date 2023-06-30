@@ -8,3 +8,4 @@ export default class CreateCommentDTO {
 
   public authorId!: string;
 }
+

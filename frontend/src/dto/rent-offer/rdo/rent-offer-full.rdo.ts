@@ -2,7 +2,7 @@ import { City, OfferType } from '../rent-offer.constants.js';
 import UserBasicRDO from '../../user/rdo/user-basic.rdo.js';
 
 
-export class RentOfferFullRDO {
+export default class RentOfferFullRDO {
   public id!: string;
 
   public title!: string;

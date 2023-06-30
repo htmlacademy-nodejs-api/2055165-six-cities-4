@@ -78,8 +78,12 @@ export enum StoreSlice {
 }
 
 export enum HttpCode {
+  Ok = 200,
+  Created = 201,
   NotFound = 404,
   NoAuth = 401,
+  BadRequest = 400,
+  Conflict = 409
 }
 
 export enum SubmitStatus {

@@ -2,6 +2,8 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 
 import { Token } from './utils';
+import { HttpCode } from './const';
+import { ValidationErrorField } from './types/error';
 
 const BACKEND_URL = 'http://localhost:5000';
 const REQUEST_TIMEOUT = 5000;
@@ -28,8 +30,31 @@ export const createAPI = (): AxiosInstance => {
     (response) => response,
     (error: AxiosError) => {
       toast.dismiss();
-      toast.warn(error.response ? error.response.data.error : error.message);
-
+      const {response} = error;
+      if (response) {
+        switch (response.status) {
+          case HttpCode.BadRequest:
+            (response.data.details)
+              ? response.data.details
+                .forEach(
+                  (detail: ValidationErrorField) =>
+                    detail.messages
+                      .forEach(
+                        (message: string) => toast.info(message),
+                      ),
+                )
+              : toast.info(response.data.message);
+            break;
+          case HttpCode.NoAuth:
+          case HttpCode.NotFound:
+            toast.info(response.data.error);
+            toast.info(response.data.message);
+            break;
+          case HttpCode.Conflict:
+            toast.info(response.data.message);
+            break;
+        }
+      }
       return Promise.reject(error);
     }
   );
