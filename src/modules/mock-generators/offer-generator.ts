@@ -38,14 +38,12 @@ export default class OfferGenerator implements GeneratorInterface {
     const username = getRandomArrItem<string>(this.mockData.usernames);
     const email = getRandomArrItem<string>(this.mockData.emails);
     const userStatus = getRandomArrItem<string>(Object.values(UserStatus));
-    const longitude = getRandomArrItem<string>(this.mockData.longitudes);
-    const latitude = getRandomArrItem<string>(this.mockData.latitudes);
 
     return [
       title, description, offerDate, city,
       isPremium, rating, type, bedrooms,
       maxAdults, price, goods, username,
-      email, userStatus, longitude, latitude
+      email, userStatus
     ].join('\t');
   }
 }

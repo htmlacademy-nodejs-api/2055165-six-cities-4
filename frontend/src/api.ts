@@ -5,7 +5,7 @@ import { Token } from './utils';
 import { HttpCode } from './const';
 import { ValidationErrorField } from './types/error';
 
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = 'http://localhost:4000';
 const REQUEST_TIMEOUT = 5000;
 
 export const createAPI = (): AxiosInstance => {
