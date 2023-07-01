@@ -1,10 +1,11 @@
 import { UserType } from '../const';
+import CreateCommentDTO from '../dto/comment/create-comment.dto';
 import CreateRentOfferDTO from '../dto/rent-offer/create-rent-offer.dto';
 import { CityName, Goods, OfferType } from '../dto/rent-offer/rent-offer.constants';
 import UpdateRentOfferDTO from '../dto/rent-offer/update-rent-offer.dto';
 import CreateUserDTO from '../dto/user/create-user.dto';
 import { UserStatus } from '../dto/user/user.constants';
-import { NewOffer, Offer, UserRegister } from '../types/types';
+import { CommentAuth, NewOffer, Offer, UserRegister } from '../types/types';
 
 export const adaptRegisterUserToServer =
   (user: UserRegister): CreateUserDTO => ({
@@ -51,3 +52,11 @@ export const adaptExistOfferToServer = (offer: Offer): UpdateRentOfferDTO => ({
   latitude: offer.location.latitude,
   longitude: offer.location.longitude
 });
+
+export const adaptNewCommentToServer = (commentary: CommentAuth): CreateCommentDTO => ({
+  text: commentary.comment,
+  rating: commentary.rating,
+  offerId: commentary.id
+});
+
+

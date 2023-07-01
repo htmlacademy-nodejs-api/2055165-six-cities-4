@@ -1,13 +1,13 @@
 #Комментарии
 ##Создание нового комментария
-POST http://localhost:5000/comments HTTP/1.1
+POST http://localhost:4000/comments HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5ZGM0ZWQ2NGNjNjFkNTQ5MDI1Mzg1IiwiaWF0IjoxNjg4MDYxMTY1LCJleHAiOjE2ODgxNDc1NjV9.Gw4SQ3unsa3Vu6NJeUFi4gC50pOp-rr1MZuVXE9i17Y
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5ZGM0ZWQ2NGNjNjFkNTQ5MDI1Mzg1IiwiaWF0IjoxNjg4MTk4MDU0LCJleHAiOjE2ODgyODQ0NTR9.Q3Vy0X4ZOFXmNgTwzTTv1guKD8afge9FvY8cLNFjpKQ
 
 {
   "text": "Новенький комментарий от testuser-1",
   "rating": 2,
-  "offerId": "649b17f810fefa4c01ec7271"
+  "offerId": "649f43652d08cabe8f95a128"
 }
 
 ###

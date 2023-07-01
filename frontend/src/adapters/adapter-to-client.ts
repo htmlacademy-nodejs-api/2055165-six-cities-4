@@ -1,10 +1,11 @@
 import { UserType } from '../const';
+import CommentRDO from '../dto/comment/rdo/comment.rdo';
 import RentOfferBasicRDO from '../dto/rent-offer/rdo/rent-offer-basic.rdo';
 import RentOfferFullRDO from '../dto/rent-offer/rdo/rent-offer-full.rdo';
 import UserAuthRDO from '../dto/user/rdo/user-auth.rdo';
 import UserBasicRDO from '../dto/user/rdo/user-basic.rdo';
 import { UserStatus } from '../dto/user/user.constants';
-import { Offer, User, UserWithToken } from '../types/types';
+import { Comment, Offer, User, UserWithToken } from '../types/types';
 
 export {};
 
@@ -87,4 +88,23 @@ export const adaptAuthUserToClient = (user: UserAuthRDO): UserWithToken => ({
 
 export const adaptUserStatusToClient = (status: UserStatus): UserType =>
   status === UserStatus.Default ? UserType.Regular : UserType.Pro;
+
+
+export const adaptCommentsToClient = (comments: CommentRDO[]): Comment[] =>
+  comments.map((commentary: CommentRDO) => ({
+    id: commentary.id,
+    comment: commentary.text,
+    date: commentary.postDate,
+    rating: commentary.rating,
+    user: adaptUserToClient(commentary.author)
+  }));
+
+
+export const adaptCommentToClient = (comment: CommentRDO): Comment => ({
+  id: comment.id,
+  comment: comment.text,
+  date: comment.postDate,
+  rating: comment.rating,
+  user: adaptUserToClient(comment.author)
+});
 

@@ -5,7 +5,5 @@ export default class CreateCommentDTO {
   public rating!: number;
 
   public offerId!: string;
-
-  public authorId!: string;
 }
 

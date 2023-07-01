@@ -4,12 +4,13 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import type { UserAuth, Offer, Comment, CommentAuth, FavoriteAuth, UserRegister, NewOffer } from '../types/types';
 import { ApiRoute, AppRoute, HttpCode } from '../const';
 import { Token } from '../utils';
-import { adaptAuthUserToClient, adaptOfferToClient, adaptOffersToClient, adaptUserToClient } from '../adapters/adapter-to-client';
+import { adaptAuthUserToClient, adaptCommentToClient, adaptCommentsToClient, adaptOfferToClient, adaptOffersToClient, adaptUserToClient } from '../adapters/adapter-to-client';
 import RentOfferBasicRDO from '../dto/rent-offer/rdo/rent-offer-basic.rdo';
 import RentOfferFullRDO from '../dto/rent-offer/rdo/rent-offer-full.rdo';
 import UserBasicRDO from '../dto/user/rdo/user-basic.rdo';
 import UserAuthRDO from '../dto/user/rdo/user-auth.rdo';
-import { adaptExistOfferToServer, adaptNewOfferToServer, adaptRegisterUserToServer } from '../adapters/adapters-to-server';
+import { adaptExistOfferToServer, adaptNewCommentToServer, adaptNewOfferToServer, adaptRegisterUserToServer } from '../adapters/adapters-to-server';
+import CommentRDO from '../dto/comment/rdo/comment.rdo';
 
 type Extra = {
   api: AxiosInstance;
@@ -115,9 +116,9 @@ export const fetchComments = createAsyncThunk<Comment[], Offer['id'], { extra: E
   Action.FETCH_COMMENTS,
   async (id, { extra }) => {
     const { api } = extra;
-    const { data } = await api.get<Comment[]>(`${ApiRoute.Offers}/${id}${ApiRoute.Comments}`);
+    const { data } = await api.get<CommentRDO[]>(`${ApiRoute.Offers}/${id}${ApiRoute.Comments}`);
 
-    return data;
+    return adaptCommentsToClient(data);
   });
 
 export const fetchUserStatus = createAsyncThunk<UserAuth['email'], undefined, { extra: Extra }>(
@@ -183,11 +184,11 @@ export const registerUser = createAsyncThunk<void, UserRegister, { extra: Extra 
 
 export const postComment = createAsyncThunk<Comment, CommentAuth, { extra: Extra }>(
   Action.POST_COMMENT,
-  async ({ id, comment, rating }, { extra }) => {
+  async (newComment, { extra }) => {
     const { api } = extra;
-    const { data } = await api.post<Comment>(`${ApiRoute.Offers}/${id}${ApiRoute.Comments}`, { comment, rating });
+    const { data } = await api.post<CommentRDO>(ApiRoute.Comments, adaptNewCommentToServer(newComment));
 
-    return data;
+    return adaptCommentToClient(data);
   });
 
 export const postFavorite = createAsyncThunk<Offer, FavoriteAuth, { extra: Extra }>(

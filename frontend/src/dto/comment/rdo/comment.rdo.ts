@@ -7,7 +7,7 @@ export default class CommentRDO {
 
   public rating!: number;
 
-  public postDate!: Date;
+  public postDate!: string;
 
   public author!: UserBasicRDO;
 }
