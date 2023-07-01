@@ -27,11 +27,6 @@ GET  http://localhost:2000/users/auth HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4NzYzNzc0OSwiZXhwIjoxNjg3NzI0MTQ5fQ.XiKWTNLCLDVAi3dU2lW64Q75gai0OK2Q2sdBXTmy8N8
 ###
 
-## Завершения сеанса пользователя
-DELETE http://localhost:2000/users/logout HTTP/1.1
-X-token: 'somesupertoken'
-
-###
 
 ## Добавление предложения в избранное
 PUT http://localhost:2000/users/64999ee166404b7e913db229/favorites/6498b3f9f372335d3ad3d6cf?isFav=1 HTTP/1.1
@@ -43,7 +38,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlc
 ## Загрузка аватара пользователем
 
 POST  http://localhost:2000/users/64974ef5bc8fdadc5a227271/upload/avatar HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4Nzg2OTI4MCwiZXhwIjoxNjg3OTU1NjgwfQ.lj_LERy81_F0zR2jPDvuBemgd62017kb6TSwtdyQYHs
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5ZGM0ZWQ2NGNjNjFkNTQ5MDI1Mzg1IiwiaWF0IjoxNjg4MTY3ODA5LCJleHAiOjE2ODgyNTQyMDl9.6yWQ6qbPjzqI9TGgr6Pw2Q3HgLSs_Ou0L-UkI9d8rfw
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary

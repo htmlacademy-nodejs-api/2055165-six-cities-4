@@ -53,6 +53,9 @@ export const createAPI = (): AxiosInstance => {
           case HttpCode.Conflict:
             toast.info(response.data.message);
             break;
+          case HttpCode.ServerInternal:
+            toast.error('INTERNAL SERVER ERROR');
+            break;
         }
       }
       return Promise.reject(error);

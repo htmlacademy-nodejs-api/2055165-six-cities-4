@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 import type { SiteData } from '../../types/state';
 import { StoreSlice, SubmitStatus } from '../../const';
-import { fetchOffers, fetchOffer, fetchPremiumOffers, fetchComments, postComment, postFavorite, deleteFavorite, fetchFavoriteOffers, postOffer, editOffer } from '../action';
+import { fetchOffers, fetchOffer, fetchPremiumOffers, fetchComments, postComment, postFavorite, deleteFavorite, fetchFavoriteOffers, postOffer, editOffer, deleteOffer } from '../action';
 
 const initialState: SiteData = {
   offers: [],
@@ -96,6 +96,12 @@ export const siteData = createSlice({
         if (state.offer && state.offer.id === updatedOffer.id) {
           state.offer = updatedOffer;
         }
+      })
+      .addCase(deleteOffer.fulfilled, (state, action) => {
+        const deletedOfferId = action.payload;
+        state.offers = state.offers.filter((offer) => offer.id !== deletedOfferId);
+        state.premiumOffers = state.premiumOffers.filter((offer) => offer.id !== deletedOfferId);
+        state.favoriteOffers = state.favoriteOffers.filter((offer) => offer.id !== deletedOfferId);
       });
   }
 });

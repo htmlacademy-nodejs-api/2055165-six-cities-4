@@ -1,4 +1,4 @@
-import { ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsLatitude, IsLongitude, IsMimeType, IsOptional, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsLatitude, IsLongitude, IsOptional, IsUrl, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 import { CityName } from '../../../types/city.type.js';
 import { Goods } from '../../../types/goods.type.js';
@@ -26,14 +26,14 @@ export default class UpdateRentOfferDTO {
   public city?: CityName;
 
   @IsOptional()
-  @IsMimeType({message: 'preview must be a valid image file'})
+  @IsUrl({}, {message: 'preview image must be a valid URL string'})
   public previewImage?: string;
 
   @IsOptional()
   @IsArray({message: '"images" field must be an array'})
   @ArrayMinSize(IMAGES_COUNT, {message: `"images" field must contain ${IMAGES_COUNT} image files`})
   @ArrayMaxSize(IMAGES_COUNT, {message: `"images" field must contain ${IMAGES_COUNT} image files`})
-  @IsMimeType({each: true, message: 'must be a valid image file'})
+  @IsUrl({}, {each: true, message: 'image must be a valid URL string'})
   public images?: string[];
 
   @IsOptional()

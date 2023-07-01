@@ -1,9 +1,10 @@
 import { UserType } from '../const';
 import RentOfferBasicRDO from '../dto/rent-offer/rdo/rent-offer-basic.rdo';
 import RentOfferFullRDO from '../dto/rent-offer/rdo/rent-offer-full.rdo';
+import UserAuthRDO from '../dto/user/rdo/user-auth.rdo';
 import UserBasicRDO from '../dto/user/rdo/user-basic.rdo';
 import { UserStatus } from '../dto/user/user.constants';
-import { Offer, User } from '../types/types';
+import { Offer, User, UserWithToken } from '../types/types';
 
 export {};
 
@@ -74,6 +75,14 @@ export const adaptUserToClient = (user: UserBasicRDO): User => ({
   avatarUrl: user.avatarPath,
   type: adaptUserStatusToClient(user.status),
   email: user.email
+});
+
+export const adaptAuthUserToClient = (user: UserAuthRDO): UserWithToken => ({
+  name: user.username,
+  avatarUrl: user.avatarPath,
+  type: adaptUserStatusToClient(user.status),
+  email: user.email,
+  token: user.token
 });
 
 export const adaptUserStatusToClient = (status: UserStatus): UserType =>

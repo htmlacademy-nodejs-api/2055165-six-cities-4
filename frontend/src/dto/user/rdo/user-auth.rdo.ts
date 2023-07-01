@@ -1,4 +1,8 @@
+import { UserStatus } from '../user.constants';
+
 export default class UserAuthRDO {
+
+  public id!: string;
 
   public token!: string;
 
@@ -6,7 +10,7 @@ export default class UserAuthRDO {
 
   public email!: string;
 
-  public status!: string;
+  public status!: UserStatus;
 
   public avatarPath!: string;
 }

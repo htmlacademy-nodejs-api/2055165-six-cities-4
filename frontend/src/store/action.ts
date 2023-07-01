@@ -1,12 +1,15 @@
 import type { History } from 'history';
-import type { AxiosInstance, AxiosError } from 'axios';
+import { AxiosInstance, AxiosError } from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import type { UserAuth, User, Offer, Comment, CommentAuth, FavoriteAuth, UserRegister, NewOffer } from '../types/types';
+import type { UserAuth, Offer, Comment, CommentAuth, FavoriteAuth, UserRegister, NewOffer } from '../types/types';
 import { ApiRoute, AppRoute, HttpCode } from '../const';
 import { Token } from '../utils';
-import { adaptOfferToClient, adaptOffersToClient } from '../adapters/adapter-to-client';
+import { adaptAuthUserToClient, adaptOfferToClient, adaptOffersToClient, adaptUserToClient } from '../adapters/adapter-to-client';
 import RentOfferBasicRDO from '../dto/rent-offer/rdo/rent-offer-basic.rdo';
 import RentOfferFullRDO from '../dto/rent-offer/rdo/rent-offer-full.rdo';
+import UserBasicRDO from '../dto/user/rdo/user-basic.rdo';
+import UserAuthRDO from '../dto/user/rdo/user-auth.rdo';
+import { adaptExistOfferToServer, adaptNewOfferToServer, adaptRegisterUserToServer } from '../adapters/adapters-to-server';
 
 type Extra = {
   api: AxiosInstance;
@@ -73,28 +76,30 @@ export const postOffer = createAsyncThunk<Offer, NewOffer, { extra: Extra }>(
   Action.POST_OFFER,
   async (newOffer, { extra }) => {
     const { api, history } = extra;
-    const { data } = await api.post<Offer>(ApiRoute.Offers, newOffer);
+    const { data } = await api.post<RentOfferFullRDO>(ApiRoute.Offers, adaptNewOfferToServer(newOffer));
     history.push(`${AppRoute.Property}/${data.id}`);
 
-    return data;
+    return adaptOfferToClient(data);
   });
 
 export const editOffer = createAsyncThunk<Offer, Offer, { extra: Extra }>(
   Action.EDIT_OFFER,
   async (offer, { extra }) => {
     const { api, history } = extra;
-    const { data } = await api.patch<Offer>(`${ApiRoute.Offers}/${offer.id}`, offer);
+    const { data } = await api.patch<RentOfferFullRDO>(`${ApiRoute.Offers}/${offer.id}`, adaptExistOfferToServer(offer));
     history.push(`${AppRoute.Property}/${data.id}`);
 
-    return data;
+    return adaptOfferToClient(data);
   });
 
-export const deleteOffer = createAsyncThunk<void, string, { extra: Extra }>(
+export const deleteOffer = createAsyncThunk<string, string, { extra: Extra }>(
   Action.DELETE_OFFER,
   async (id, { extra }) => {
     const { api, history } = extra;
     await api.delete(`${ApiRoute.Offers}/${id}`);
     history.push(AppRoute.Root);
+
+    return id;
   });
 
 export const fetchPremiumOffers = createAsyncThunk<Offer[], string, { extra: Extra }>(
@@ -121,9 +126,9 @@ export const fetchUserStatus = createAsyncThunk<UserAuth['email'], undefined, { 
     const { api } = extra;
 
     try {
-      const { data } = await api.get<User>(ApiRoute.Login);
+      const { data } = await api.get<UserBasicRDO>(ApiRoute.Login);
 
-      return data.email;
+      return adaptUserToClient(data).email;
     } catch (error) {
       const axiosError = error as AxiosError;
 
@@ -139,8 +144,8 @@ export const loginUser = createAsyncThunk<UserAuth['email'], UserAuth, { extra: 
   Action.LOGIN_USER,
   async ({ email, password }, { extra }) => {
     const { api, history } = extra;
-    const { data } = await api.post<User & { token: string }>(ApiRoute.Login, { email, password });
-    const { token } = data;
+    const { data } = await api.post<UserAuthRDO>(ApiRoute.Login, { email, password });
+    const { token } = adaptAuthUserToClient(data);
 
     Token.save(token);
     history.push(AppRoute.Root);
@@ -158,18 +163,17 @@ export const logoutUser = createAsyncThunk<void, undefined, { extra: Extra }>(
 
 export const registerUser = createAsyncThunk<void, UserRegister, { extra: Extra }>(
   Action.REGISTER_USER,
-  async ({ email, password, name, avatar, type }, { extra }) => {
+  async ({avatar, ...registerData}, { extra }) => {
     const { api, history } = extra;
-    const { data } = await api.post<{ id: string }>(ApiRoute.Register, {
-      email,
-      password,
-      name,
-      type,
-    });
-    if (avatar) {
+    const { data } = await api.post<UserAuthRDO>(ApiRoute.Register, adaptRegisterUserToServer(registerData));
+    const { token } = data;
+
+    Token.save(token);
+
+    if (avatar && avatar.name) {
       const payload = new FormData();
       payload.append('avatar', avatar);
-      await api.post(`/${data.id}${ApiRoute.Avatar}`, payload, {
+      await api.post(`/users/${data.id}/upload${ApiRoute.Avatar}`, payload, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
     }
@@ -191,11 +195,11 @@ export const postFavorite = createAsyncThunk<Offer, FavoriteAuth, { extra: Extra
     const { api, history } = extra;
 
     try {
-      const { data } = await api.post<Offer>(
-        `${ApiRoute.Favorite}/${id}`
+      const { data } = await api.put<RentOfferFullRDO>(
+        `/users${ApiRoute.Favorite}/${id}?isFav=1`
       );
 
-      return data;
+      return adaptOfferToClient(data);
     } catch (error) {
       const axiosError = error as AxiosError;
 
@@ -212,11 +216,11 @@ export const deleteFavorite = createAsyncThunk<Offer, FavoriteAuth, { extra: Ext
     const { api, history } = extra;
 
     try {
-      const { data } = await api.delete<Offer>(
-        `${ApiRoute.Favorite}/${id}`
+      const { data } = await api.put<RentOfferFullRDO>(
+        `/users${ApiRoute.Favorite}/${id}?isFav=0`
       );
 
-      return data;
+      return adaptOfferToClient(data);
     } catch (error) {
       const axiosError = error as AxiosError;
 

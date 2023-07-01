@@ -83,7 +83,8 @@ export enum HttpCode {
   NotFound = 404,
   NoAuth = 401,
   BadRequest = 400,
-  Conflict = 409
+  Conflict = 409,
+  ServerInternal = 500
 }
 
 export enum SubmitStatus {

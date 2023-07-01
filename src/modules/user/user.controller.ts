@@ -28,7 +28,7 @@ import UserBasicRDO from './rdo/user-basic.rdo.js';
 import AuthError from '../../core/errors/auth-error.js';
 import UserAvatarRDO from './rdo/user-avatar.rdo.js';
 import UpdateUserDTO from './dto/update-user.dto.js';
-import RentOfferBasicRDO from '../rent-offer/rdo/rent-offer-basic.rdo.js';
+import { RentOfferFullRDO } from '../rent-offer/rdo/rent-offer-full.rdo.js';
 
 type ParamsUserDetails = {
   userId: string;
@@ -81,16 +81,13 @@ export default class UserController extends Controller {
       ]
     });
     this.addRoute({
-      path: '/:userId/favorites/:offerId',
+      path: '/favorites/:offerId',
       method: HttpMethod.Put,
       handler:this.updateFavoriteStatus,
       middlewares: [
         new PrivateRouteMiddleware(),
-        new ValidateObjectIdMiddleware('userId'),
         new ValidateObjectIdMiddleware('offerId'),
-        new DocumentModifyMiddleware(this.userService, 'User', 'userId'),
         new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
-        new DocumentExistsMiddleware(this.userService, 'User', 'userId')
       ]
     });
 
@@ -118,7 +115,7 @@ export default class UserController extends Controller {
       }
     );
 
-    this.created(res, fillRDO(UserAuthRDO, {...newUser.toObject(), token}));
+    this.created(res, fillRDO(UserAuthRDO, {...newUser.toObject({virtuals: true}), token}));
   }
 
   public async checkAuth(_req: Request, res: Response): Promise<void> {
@@ -171,7 +168,7 @@ export default class UserController extends Controller {
     }
   }
 
-  public async updateFavoriteStatus({params: {userId, offerId}, query: {isFav}}: Request<ParamsFavoriteOfferDetails>, res: Response): Promise<void> {
+  public async updateFavoriteStatus({params: {offerId}, query: {isFav}}: Request<ParamsFavoriteOfferDetails>, res: Response): Promise<void> {
     if(!isFav || (isFav !== '0' && isFav !== '1')) {
       throw new HttpError(
         StatusCodes.BAD_REQUEST,
@@ -179,11 +176,13 @@ export default class UserController extends Controller {
         'UserController'
       );
     }
+    const userId = res.locals.user.id;
 
     const status = isFav === '1';
     await this.userService.changeFavoriteStatus(userId, offerId, status);
-    const favorites = await this.rentOfferService.findUserFavorites(userId);
-    this.ok(res, fillRDO(RentOfferBasicRDO, favorites));
+    const offer = await this.rentOfferService.findById(offerId, userId);
+
+    this.ok(res, fillRDO(RentOfferFullRDO, offer));
   }
 }
 

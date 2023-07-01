@@ -65,6 +65,7 @@ export type NewOffer = {
 
 export type NewComment = Pick<Comment, 'comment' | 'rating'>;
 export type UserAuth = Pick<User, 'email'> & { password: string };
+export type UserWithToken = User & {token: string};
 export type CommentAuth = NewComment &
   Pick<Offer, 'id'>;
 export type FavoriteAuth = Offer['id'];
