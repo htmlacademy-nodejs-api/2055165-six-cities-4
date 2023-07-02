@@ -2,7 +2,7 @@ import {ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsDateStrin
 
 import { Goods } from '../../../types/goods.type.js';
 import { OfferType } from '../../../types/offer-type.type.js';
-import { CityName } from '../../../types/city.type.js';
+import { CityNames } from '../../../types/city.type.js';
 import { ADULTS_COUNT, BEDROOMS_COUNT, DESCRIPTION_LENGTH, IMAGES_COUNT, MIN_GOODS_COUNT, OFFER_PRICE, TITLE_LENGTH } from '../rent-offer.constants.js';
 
 
@@ -19,8 +19,8 @@ export default class CreateRentOfferDTO {
   @IsDateString({}, {message: 'offerDate must be valid ISO date'})
   public offerDate?: Date;
 
-  @IsEnum(CityName, {message: `city must be only one of the following: ${Object.values(CityName).join(', ')}`})
-  public city!: CityName;
+  @IsEnum(CityNames, {message: `city must be only one of the following: ${Object.values(CityNames).join(', ')}`})
+  public city!: CityNames;
 
   @IsUrl({}, {message: 'preview image must be a valid URL string'})
   public previewImage!: string;

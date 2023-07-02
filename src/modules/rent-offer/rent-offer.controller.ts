@@ -23,7 +23,7 @@ import UpdateRentOfferDTO from './dto/update-rent-offer.dto.js';
 import { DocumentExistsMiddleware } from '../../core/middlewares/document-exists.middleware.js';
 import { ResBody } from '../../types/default-response.type.js';
 import { PrivateRouteMiddleware } from '../../core/middlewares/private-route.middleware.js';
-import { CityName } from '../../types/city.type.js';
+import { CityNames } from '../../types/city.type.js';
 import { DocumentModifyMiddleware } from '../../core/middlewares/document-modify.middleware.js';
 import { ConfigInterface } from '../../core/config/config.interface.js';
 import { RestSchema } from '../../core/config/rest.schema.js';
@@ -128,7 +128,7 @@ export default class RentOfferController extends Controller {
 
   public async getPremiumOffers({query: {city}}: Request, res: Response): Promise<void> {
 
-    if (!city || !Object.values(CityName).map((cityName) => cityName.toString()).includes(city.toString())) {
+    if (!city || !Object.values(CityNames).map((cityName) => cityName.toString()).includes(city.toString())) {
       throw new HttpError(
         StatusCodes.BAD_REQUEST,
         `Incorrect path Error. Can't get offer from ${city}`,
@@ -172,7 +172,7 @@ export default class RentOfferController extends Controller {
 
   public async getFavorites(_req: Request, res: Response): Promise<void> {
 
-    const userId = res.locals.user.id;
+    const userId = res.locals?.user?.id;
     const existedUserFavorites = await this.rentOfferService.findUserFavorites(userId);
     const favoritesResponse = existedUserFavorites?.map((offer) => fillRDO(RentOfferBasicRDO, offer));
     this.ok(res, favoritesResponse);

@@ -1,4 +1,4 @@
-import { CityName, Goods, OfferType } from './rent-offer.constants';
+import { CityNames, Goods, OfferType } from './rent-offer.constants';
 
 
 export default class CreateRentOfferDTO {
@@ -8,7 +8,7 @@ export default class CreateRentOfferDTO {
 
   public offerDate?: Date;
 
-  public city!: CityName;
+  public city!: CityNames;
 
   public previewImage!: string;
 
