@@ -32,7 +32,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/UserAuthResponse'
 
 
         "400":
@@ -116,7 +116,7 @@ paths:
 
 
 
-  /users/{userId}/favorites/{offerId}:
+  /users//favorites/{offerId}:
     put:
       tags:
         - users
@@ -125,13 +125,6 @@ paths:
       security:
         - tokenAuth: []
       parameters:
-      - name: userId
-        in: path
-        description: id пользователя
-        required: true
-        schema:
-          type: string
-          example: Td233jJf4f9
       - name: offerId
         in: path
         description: id предложения, которое нужно добавить или удалить из избранного
@@ -164,7 +157,7 @@ paths:
 
       responses:
         '200':
-          description: Массив избранных предложений пользователя.
+          description: Обновленное предложение.
           content:
             application/json:
               schema:
@@ -172,7 +165,7 @@ paths:
                 items:
                   type: object
                   allOf:
-                    - $ref: '#/components/schemas/RentOfferBasicResponse'
+                    - $ref: '#/components/schemas/RentOfferFullResponse'
 
         '401':
           description: Пользователь не авторизован.
@@ -211,7 +204,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/UserAuthResponse'
 
         "400":
           description: Пользователь с таким email не существует.
@@ -253,7 +246,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponse'
+                $ref: '#/components/schemas/UserBasicResponse'
 
         '401':
           description: Пользователь не авторизован
@@ -413,7 +406,7 @@ paths:
                 $ref: '#/components/schemas/WrongPathErrorMessage'
 
 
-  /rent-offers/favorites/{userId}:
+  /rent-offers/favorites:
      get:
       tags:
       - rent-offers
@@ -424,13 +417,6 @@ paths:
         Получение списка избранных предложений.
         Доступно только авторизованным пользователям.
       parameters:
-        - name: userId
-          in: path
-          description: id пользователя
-          required: true
-          schema:
-            type: string
-            example: Td233jJf4f9
         - name: Authorization
           in: header
           description: Авторизационный токен пользователя
@@ -596,6 +582,8 @@ paths:
               example:
                 - Bearer
                 - j3jo3j4io3j4o3ijojdfoij
+
+
       responses:
         '204':
           description: Предложение успешно удалено вместе с комментариями к нему
@@ -613,130 +601,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UpdateOfferErrorMessage'
-
-
-  /rent-offers/{offerId}/upload/preview:
-    put:
-      tags:
-        - users
-      summary: Загрузить превью изображение предложения
-      security:
-        - tokenAuth: []
-      description: Загружает превью изображение предложения. Изображение должно быть в формате 'png' или 'jpeg'.
-      parameters:
-        - name: offerId
-          in: path
-          description: id предложения
-          required: true
-          schema:
-            type: string
-            example: Td233jJf4f9
-        - name: Authorization
-          in: header
-          description: Авторизационный токен пользователя
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
-              example:
-              - Bearer
-              - j3jo3j4io3j4o3ijojdfoij
-
-      requestBody:
-        description: Файл изображения.
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UploadPreviewRequest"
-        required: true
-
-      responses:
-        "201":
-          description: Изображение успешно загружено. Возвращает ссылку на изображение.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UploadPreviewResponse'
-
-
-        "400":
-          description: Некорректный запрос при попытке загрузить изображение чужому офферу или
-            некорректный формат изображения или некорректный offerI
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FailedUploadFileMessage'
-
-
-        '401':
-          description: Пользователь не авторизован.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CheckAuthErrorMessage'
-
-
-  /rent-offers/{offerId}/upload/images:
-    put:
-      tags:
-        - users
-      summary: Загрузить массив изображений предложения
-      security:
-        - tokenAuth: []
-      description: Загружает изображения предложения. Изображения должны быть в формате 'png' или 'jpeg'.
-      parameters:
-        - name: offerId
-          in: path
-          description: id предложения
-          required: true
-          schema:
-            type: string
-            example: Td233jJf4f9
-        - name: Authorization
-          in: header
-          description: Авторизационный токен пользователя
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
-              example:
-              - Bearer
-              - j3jo3j4io3j4o3ijojdfoij
-
-      requestBody:
-        description: Файлы изображения.
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UploadImagesRequest"
-        required: true
-
-      responses:
-        "201":
-          description: Изображения успешно загружены. Возвращает ссылки на изображения предложения.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UploadImagesResponse'
-
-
-        "400":
-          description: Некорректный запрос при попытке загрузить изображение чужому офферу или
-            некорректный формат изображения или некорректный offerI
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FailedUploadFileMessage'
-
-
-        '401':
-          description: Пользователь не авторизован.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CheckAuthErrorMessage'
 
 
 
@@ -852,9 +716,31 @@ components:
         - status
 
 
-    UserResponse:
+    UserBasicResponse:
       type: object
       properties:
+        email:
+          type: string
+          format: email
+          example: test@somemail.com
+        username:
+          type: string
+          example: SomeNick
+        status:
+          type: string
+          example: обычный
+        avatarPath:
+          type: string
+          format: binary
+          example: /static/avatar/3.jpg
+
+
+    UserAuthResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: jkj3ij3i3j3ij
         email:
           type: string
           format: email
@@ -1024,6 +910,12 @@ components:
         price:
           type: integer
           example: 1200
+        latitude:
+          type: number
+          example: 24.3434
+        longitude:
+          type: number
+          example: 23.4522
 
 
     RentOfferFullResponse:
@@ -1197,8 +1089,7 @@ components:
             enum:
               - Breakfast
               - Air conditioning
-              - Laptop
-              - Friendly workspace
+              - Laptop Friendly workspace
               - Baby seat
               - Washer
               - Towels
@@ -1306,8 +1197,7 @@ components:
             enum:
               - Breakfast
               - Air conditioning
-              - Laptop
-              - Friendly workspace
+              - Laptop Friendly workspace
               - Baby seat
               - Washer
               - Towels

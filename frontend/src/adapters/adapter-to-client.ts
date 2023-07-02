@@ -91,13 +91,7 @@ export const adaptUserStatusToClient = (status: UserStatus): UserType =>
 
 
 export const adaptCommentsToClient = (comments: CommentRDO[]): Comment[] =>
-  comments.map((commentary: CommentRDO) => ({
-    id: commentary.id,
-    comment: commentary.text,
-    date: commentary.postDate,
-    rating: commentary.rating,
-    user: adaptUserToClient(commentary.author)
-  }));
+  comments.map((comment: CommentRDO) => adaptCommentToClient(comment));
 
 
 export const adaptCommentToClient = (comment: CommentRDO): Comment => ({

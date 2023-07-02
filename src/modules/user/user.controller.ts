@@ -153,7 +153,7 @@ export default class UserController extends Controller {
       }
     );
 
-    this.ok(res, fillRDO(UserAuthRDO, {...existUser.toObject(), token}));
+    this.ok(res, fillRDO(UserAuthRDO, {...existUser.toObject({virtuals: true}), token}));
   }
 
   public async uploadAvatar(req: Request<ParamsUserDetails, ResBody, UpdateUserDTO>, res: Response): Promise<void> {
