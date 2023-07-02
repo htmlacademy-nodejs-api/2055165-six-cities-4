@@ -1,9 +1,9 @@
-import {ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsLatitude, IsLongitude, IsOptional, Max, MaxLength, Min, MinLength } from 'class-validator';
+import {ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsDateString, IsEnum, IsInt, IsLatitude, IsLongitude, IsOptional, IsUrl, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 import { Goods } from '../../../types/goods.type.js';
 import { OfferType } from '../../../types/offer-type.type.js';
 import { CityName } from '../../../types/city.type.js';
-import { ADULTS_COUNT, BEDROOMS_COUNT, DESCRIPTION_LENGTH, MIN_GOODS_COUNT, OFFER_PRICE, TITLE_LENGTH } from '../rent-offer.constants.js';
+import { ADULTS_COUNT, BEDROOMS_COUNT, DESCRIPTION_LENGTH, IMAGES_COUNT, MIN_GOODS_COUNT, OFFER_PRICE, TITLE_LENGTH } from '../rent-offer.constants.js';
 
 
 export default class CreateRentOfferDTO {
@@ -21,6 +21,15 @@ export default class CreateRentOfferDTO {
 
   @IsEnum(CityName, {message: `city must be only one of the following: ${Object.values(CityName).join(', ')}`})
   public city!: CityName;
+
+  @IsUrl({}, {message: 'preview image must be a valid URL string'})
+  public previewImage!: string;
+
+  @IsArray({message: '"images" field must be an array'})
+  @ArrayMinSize(IMAGES_COUNT, {message: `"images" field must contain ${IMAGES_COUNT} image files`})
+  @ArrayMaxSize(IMAGES_COUNT, {message: `"images" field must contain ${IMAGES_COUNT} image files`})
+  @IsUrl({}, {each: true, message: 'image must be a valid URL string'})
+  public images!: string[];
 
   @IsBoolean({message: '"isPremium" field must be a boolean'})
   public isPremium!: boolean;

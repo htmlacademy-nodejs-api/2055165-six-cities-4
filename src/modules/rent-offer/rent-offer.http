@@ -1,14 +1,22 @@
 #Предложения
 ## Создание нового предложения
-POST http://localhost:2000/rent-offers HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4Nzg2OTI4MCwiZXhwIjoxNjg3OTU1NjgwfQ.lj_LERy81_F0zR2jPDvuBemgd62017kb6TSwtdyQYHs
+POST http://localhost:4000/rent-offers HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5ZGM0ZWQ2NGNjNjFkNTQ5MDI1Mzg1IiwiaWF0IjoxNjg4MTk4MDU0LCJleHAiOjE2ODgyODQ0NTR9.Q3Vy0X4ZOFXmNgTwzTTv1guKD8afge9FvY8cLNFjpKQ
 Content-Type: application/json
 
 {
-  "title": "new offer with no img",
+  "title": "new offer for delete",
   "description": "long description for validation testoffer",
   "city": "Paris",
-
+  "previewImage": "https://imgtr.ee/images/2023/06/30/84a84d90b797f49a5d71eda426300feb.jpeg",
+  "images": [
+    "https://imgtr.ee/images/2023/06/30/84a84d90b797f49a5d71eda426300feb.jpeg",
+    "https://imgtr.ee/images/2023/06/30/84a84d90b797f49a5d71eda426300feb.jpeg",
+    "https://imgtr.ee/images/2023/06/30/84a84d90b797f49a5d71eda426300feb.jpeg",
+    "https://imgtr.ee/images/2023/06/30/84a84d90b797f49a5d71eda426300feb.jpeg",
+    "https://imgtr.ee/images/2023/06/30/84a84d90b797f49a5d71eda426300feb.jpeg",
+    "https://imgtr.ee/images/2023/06/30/84a84d90b797f49a5d71eda426300feb.jpeg"
+  ],
   "isPremium": false,
   "type": "hotel",
   "bedrooms": 5,
@@ -25,18 +33,18 @@ Content-Type: application/json
 ###
 
 ## Получить список предложений
-GET http://localhost:2000/rent-offers HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5OTllZTE2NjQwNGI3ZTkxM2RiMjI5IiwiaWF0IjoxNjg3Nzg5MjgxLCJleHAiOjE2ODc4NzU2ODF9.5q2CKYDMMw9vv9n4qw5i1NbbFBoIsbm_rZQnmG8KMl4
+GET http://localhost:4000/rent-offers HTTP/1.1
+// Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5OTllZTE2NjQwNGI3ZTkxM2RiMjI5IiwiaWF0IjoxNjg3Nzg5MjgxLCJleHAiOjE2ODc4NzU2ODF9.5q2CKYDMMw9vv9n4qw5i1NbbFBoIsbm_rZQnmG8KMl4
 ###
 
 ## Получить список премиальных предложений города
-GET http://localhost:2000/rent-offers/premium?city=Paris HTTP/1.1
+GET http://localhost:4000/rent-offers/premium?city=Paris HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5OTllZTE2NjQwNGI3ZTkxM2RiMjI5IiwiaWF0IjoxNjg3Nzg5MjgxLCJleHAiOjE2ODc4NzU2ODF9.5q2CKYDMMw9vv9n4qw5i1NbbFBoIsbm_rZQnmG8KMl4
 ###
 
 ## Получить всю информацию о предложении
-GET http://localhost:2000/rent-offers/6498b3e5f372335d3ad3d6c3 HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5OTllZTE2NjQwNGI3ZTkxM2RiMjI5IiwiaWF0IjoxNjg3Nzg5MjgxLCJleHAiOjE2ODc4NzU2ODF9.5q2CKYDMMw9vv9n4qw5i1NbbFBoIsbm_rZQnmG8KMl4
+GET http://localhost:4000/rent-offers/649b17f810fefa4c01ec7271 HTTP/1.1
+//Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5OTllZTE2NjQwNGI3ZTkxM2RiMjI5IiwiaWF0IjoxNjg3Nzg5MjgxLCJleHAiOjE2ODc4NzU2ODF9.5q2CKYDMMw9vv9n4qw5i1NbbFBoIsbm_rZQnmG8KMl4
 
 ###
 
@@ -56,26 +64,25 @@ Content-Type: application/json
 ###
 
 ## Удалить предложение
-DELETE http://localhost:2000/rent-offers/6498a59ce38bb956a9f0e70e HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4NzcyMzcwMiwiZXhwIjoxNjg3ODEwMTAyfQ.ilRQz_qcmgZsp47dsHo62v9xTG_lTDmiAut8lmdWkjw
-
+DELETE http://localhost:4000/rent-offers/649fe062bc3d195fbc921830 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5ZGM0ZWQ2NGNjNjFkNTQ5MDI1Mzg1IiwiaWF0IjoxNjg4MTk4MDU0LCJleHAiOjE2ODgyODQ0NTR9.Q3Vy0X4ZOFXmNgTwzTTv1guKD8afge9FvY8cLNFjpKQ
 
 ###
 
 ##Получить список комментариев к офферу
-GET http://localhost:2000/rent-offers/6498b3e5f372335d3ad3d6c3/comments HTTP/1.1
+GET http://localhost:4000/rent-offers/649b17f810fefa4c01ec7271/comments HTTP/1.1
 
 ###
 
 
 ## Получить избранные предложения пользователя
-GET http://localhost:2000/rent-offers/favorites/64999ee166404b7e913db229/ HTTP/1.1
+GET http://localhost:4000/rent-offers/favorites/64999ee166404b7e913db229/ HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVzZXItbm8tYWR2ZXJ0aXNlckBuZXd0ZXN0LmNvbSIsImlkIjoiNjQ5OTllZTE2NjQwNGI3ZTkxM2RiMjI5IiwiaWF0IjoxNjg3Nzg5MjgxLCJleHAiOjE2ODc4NzU2ODF9.5q2CKYDMMw9vv9n4qw5i1NbbFBoIsbm_rZQnmG8KMl4
 
 ###
 
 ## Загрузка preview для оффера
-POST http://localhost:2000/rent-offers/6498af6207c98cf4951723c4/upload/preview HTTP/1.1
+POST http://localhost:4000/rent-offers/6498af6207c98cf4951723c4/upload/preview HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRlc3R1c2VyLTFAbmV3dGVzdC5jb20iLCJpZCI6IjY0OTc0ZWY1YmM4ZmRhZGM1YTIyNzI3MSIsImlhdCI6MTY4NzgwNDY2OSwiZXhwIjoxNjg3ODkxMDY5fQ.MkXb_6v-rEh3Gc9VRd82qOS25VTvZpg1bD_q-MqWfPw
 Content-Type: multipart/form-data; boundary=boundary
 

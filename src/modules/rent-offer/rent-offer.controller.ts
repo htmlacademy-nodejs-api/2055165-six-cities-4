@@ -27,14 +27,8 @@ import { CityName } from '../../types/city.type.js';
 import { DocumentModifyMiddleware } from '../../core/middlewares/document-modify.middleware.js';
 import { ConfigInterface } from '../../core/config/config.interface.js';
 import { RestSchema } from '../../core/config/rest.schema.js';
-import { UploadFileMiddleware } from '../../core/middlewares/upload-file.middleware.js';
-import RentOfferPreviewRDO from './rdo/rent-offer-preview.rdo.js';
 import UserService from '../user/user.service.js';
-import { RentOfferImagesRDO } from './rdo/rent-offer-images.rdo.js';
 
-type ParamsUserDetails = {
-  userId: string;
-} | ParamsDictionary;
 
 type ParamsOfferDetails = {
   offerId: string;
@@ -45,8 +39,8 @@ export default class RentOfferController extends Controller {
   constructor(
   @inject(AppComponent.LoggerInterface) protected readonly logger: LoggerInterface,
   @inject(AppComponent.RentOfferServiceInterface) private readonly rentOfferService: RentOfferService,
-  @inject(AppComponent.UserServiceInterface) private readonly userService: UserService,
   @inject(AppComponent.CommentServiceInterface) private readonly commentService: CommentService,
+  @inject(AppComponent.UserServiceInterface) private readonly userService: UserService,
   @inject(AppComponent.ConfigInterface) protected readonly configService: ConfigInterface<RestSchema>
   ) {
     super(logger, configService);
@@ -106,38 +100,11 @@ export default class RentOfferController extends Controller {
       ]
     });
     this.addRoute({
-      path: '/favorites/:userId',
+      path: '/favorites',
       method: HttpMethod.Get,
       handler:this.getFavorites,
       middlewares: [
         new PrivateRouteMiddleware(),
-        new ValidateObjectIdMiddleware('userId'),
-        new DocumentExistsMiddleware(this.userService, 'User', 'userId'),
-        new DocumentModifyMiddleware(this.userService, 'User', 'userId'),
-      ]
-    });
-    this.addRoute({
-      path: '/:offerId/upload/preview',
-      method: HttpMethod.Put,
-      handler: this.uploadPreviewImage,
-      middlewares: [
-        new PrivateRouteMiddleware(),
-        new ValidateObjectIdMiddleware('offerId'),
-        new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
-        new DocumentModifyMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
-        new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY_PATH'), 'preview'),
-      ]
-    });
-    this.addRoute({
-      path: '/:offerId/upload/images',
-      method: HttpMethod.Put,
-      handler: this.uploadOfferImages,
-      middlewares: [
-        new PrivateRouteMiddleware(),
-        new ValidateObjectIdMiddleware('offerId'),
-        new DocumentExistsMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
-        new DocumentModifyMiddleware(this.rentOfferService, 'Rent-offer', 'offerId'),
-        new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY_PATH'), 'images'),
       ]
     });
   }
@@ -179,6 +146,7 @@ export default class RentOfferController extends Controller {
 
     const userId = res.locals.user ? res.locals.user.id : '';
     const offer = await this.rentOfferService.findById(offerId, userId);
+
     this.ok(res, fillRDO(RentOfferFullRDO, offer));
   }
 
@@ -192,6 +160,7 @@ export default class RentOfferController extends Controller {
 
     const offer = await this.rentOfferService.deleteById(offerId);
     await this.commentService.deleteByOfferId(offerId);
+    await this.userService.deleteOfferFromUsersFavorites(offerId);
     this.noContent(res, offer);
   }
 
@@ -201,32 +170,11 @@ export default class RentOfferController extends Controller {
     this.ok(res, fillRDO(CommentRDO, comments));
   }
 
-  public async getFavorites({params: {userId}}: Request<ParamsUserDetails>, res: Response): Promise<void> {
+  public async getFavorites(_req: Request, res: Response): Promise<void> {
 
+    const userId = res.locals.user.id;
     const existedUserFavorites = await this.rentOfferService.findUserFavorites(userId);
     const favoritesResponse = existedUserFavorites?.map((offer) => fillRDO(RentOfferBasicRDO, offer));
     this.ok(res, favoritesResponse);
-  }
-
-  public async uploadPreviewImage(req: Request<ParamsOfferDetails, ResBody, UpdateRentOfferDTO>, res: Response): Promise<void> {
-    const {offerId} = req.params;
-
-    if (req.file) {
-      const uploadFile = {previewImage: req.file.filename};
-      const updatedOffer = await this.rentOfferService.updateById(offerId, uploadFile);
-
-      this.created(res, fillRDO(RentOfferPreviewRDO, updatedOffer));
-    }
-  }
-
-  public async uploadOfferImages(req: Request<ParamsOfferDetails, ResBody, UpdateRentOfferDTO>, res: Response): Promise<void> {
-    const {offerId} = req.params;
-    if (req.files) {
-      const uploadFiles = req.files as Express.Multer.File[];
-      const updateDTO = {images: uploadFiles.map((file) => file.filename)};
-
-      const updatedOffer = await this.rentOfferService.updateById(offerId, updateDTO);
-      this.created(res, fillRDO(RentOfferImagesRDO, updatedOffer));
-    }
   }
 }
