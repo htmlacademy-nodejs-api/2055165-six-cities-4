@@ -1,6 +1,6 @@
 import { GeneratorInterface } from './generator.interface.js';
 import { getRandomOfferDate, getRandomNumber, getRandomArrItem, getRandomArrItems } from '../../core/utils/randoms.js';
-import { CityName } from '../../types/city.type.js';
+import { CityNames } from '../../types/city.type.js';
 import { OfferType } from '../../types/offer-type.type.js';
 import { Goods } from '../../types/goods.type.js';
 import { UserStatus } from '../../types/user-status.type.js';
@@ -15,7 +15,7 @@ export default class OfferGenerator implements GeneratorInterface {
     const description = getRandomArrItem<string>(this.mockData.descriptions);
     const offerDate = getRandomOfferDate().toISOString();
 
-    const city = getRandomArrItem<string>(Object.values(CityName));
+    const city = getRandomArrItem<string>(Object.values(CityNames));
     const isPremium = getRandomArrItem<string>(['true', 'false']);
     const previewImage = getRandomArrItem<string>(this.mockData.previewImages);
     const images = getRandomArrItems<string>(this.mockData.images, IMAGES_COUNT).join(';');

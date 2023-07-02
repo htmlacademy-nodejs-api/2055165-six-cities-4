@@ -1,7 +1,7 @@
 import { UserType } from '../const';
 import CreateCommentDTO from '../dto/comment/create-comment.dto';
 import CreateRentOfferDTO from '../dto/rent-offer/create-rent-offer.dto';
-import { CityName, Goods, OfferType } from '../dto/rent-offer/rent-offer.constants';
+import { CityNames, Goods, OfferType } from '../dto/rent-offer/rent-offer.constants';
 import UpdateRentOfferDTO from '../dto/rent-offer/update-rent-offer.dto';
 import CreateUserDTO from '../dto/user/create-user.dto';
 import { UserStatus } from '../dto/user/user.constants';
@@ -23,7 +23,7 @@ export const adaptNewOfferToServer = (offer: NewOffer): CreateRentOfferDTO => ({
   title: offer.title,
   description: offer.description,
   offerDate: undefined,
-  city: offer.city.name as CityName,
+  city: offer.city.name as CityNames,
   previewImage: offer.previewImage,
   images: offer.images,
   isPremium: offer.isPremium,
@@ -40,7 +40,7 @@ export const adaptExistOfferToServer = (offer: Offer): UpdateRentOfferDTO => ({
   title: offer.title,
   description: offer.description,
   offerDate: undefined,
-  city: offer.city.name as CityName,
+  city: offer.city.name as CityNames,
   previewImage: offer.previewImage,
   images: offer.images,
   isPremium: offer.isPremium,

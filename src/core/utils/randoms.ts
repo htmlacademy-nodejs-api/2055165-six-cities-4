@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { CityName } from '../../types/city.type';
+import { CityNames } from '../../types/city.type';
 
 export const getRandomNumber = (min: number, max: number, numAfterDigit = 0): number | typeof NaN => {
   if ((!Number.isFinite(min) || !Number.isFinite(max)) || (min < 0 || max < 0)) {
@@ -56,8 +56,8 @@ export const getRandomOfferDate = () : dayjs.Dayjs => {
   return dayjs(newDate);
 };
 
-const CoordsRange = {
-  Paris: {
+const COORDS_RANGE = {
+  [CityNames.Paris]: {
     latitude: {
       min: 48.823413,
       max: 48.899293
@@ -68,7 +68,7 @@ const CoordsRange = {
     }
   },
 
-  Cologne: {
+  [CityNames.Cologne]: {
     latitude: {
       min: 50.916726,
       max: 50.986858
@@ -79,7 +79,7 @@ const CoordsRange = {
     }
   },
 
-  Brussels: {
+  [CityNames.Brussels]: {
     latitude: {
       min: 50.802021,
       max: 50.889017
@@ -90,7 +90,7 @@ const CoordsRange = {
     }
   },
 
-  Amsterdam: {
+  [CityNames.Amsterdam]: {
     latitude: {
       min: 52.341203,
       max: 52.422435
@@ -101,7 +101,7 @@ const CoordsRange = {
     }
   },
 
-  Hamburg: {
+  [CityNames.Hamburg]: {
     latitude: {
       min: 53.518013,
       max: 53.586607
@@ -112,7 +112,7 @@ const CoordsRange = {
     }
   },
 
-  Dusseldorf: {
+  [CityNames.Dusseldorf]: {
     latitude: {
       min: 51.176111,
       max: 51.268527
@@ -126,9 +126,9 @@ const CoordsRange = {
 
 const COORD_DIGITS_COUNT = 6;
 
-export function generateRandomLocation(city: CityName){
-  const latitude = getRandomNumber(CoordsRange[city].latitude.min, CoordsRange[city].latitude.max, COORD_DIGITS_COUNT);
-  const longitude = getRandomNumber(CoordsRange[city].longitude.min, CoordsRange[city].longitude.max, COORD_DIGITS_COUNT);
+export function generateRandomLocation(city: CityNames){
+  const latitude = getRandomNumber(COORDS_RANGE[city].latitude.min, COORDS_RANGE[city].latitude.max, COORD_DIGITS_COUNT);
+  const longitude = getRandomNumber(COORDS_RANGE[city].longitude.min, COORDS_RANGE[city].longitude.max, COORD_DIGITS_COUNT);
 
   return {latitude, longitude};
 }

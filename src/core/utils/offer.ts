@@ -1,4 +1,4 @@
-import { CityName } from '../../types/city.type.js';
+import { CityNames } from '../../types/city.type.js';
 import type { Goods } from '../../types/goods.type.js';
 import type { OfferType } from '../../types/offer-type.type.js';
 import type { RentOffer } from '../../types/rent-offer.type.js';
@@ -24,13 +24,13 @@ export function createOffer(offerData: string): RentOffer {
     status: userStatus as UserStatus
   };
 
-  const {latitude, longitude} = generateRandomLocation(city as CityName);
+  const {latitude, longitude} = generateRandomLocation(city as CityNames);
 
   return {
     title,
     description,
     offerDate: new Date(offerDate),
-    city: city as CityName,
+    city: city as CityNames,
     previewImage,
     images: images.split(';'),
     isPremium: isPremium === 'true',
